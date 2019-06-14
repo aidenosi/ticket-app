@@ -1,34 +1,45 @@
-import React, { Component } from "react";
+import React from "react";
 
 const ContactInfo = () => {
   return (
     <form>
-      <div class="form-row">
-        <div class="form-group col-md-4 mr-2">
-          <label for="inputEmail4">Name</label>
+      <div className="form-row align-items-center">
+        <div className="form-group col mr-3">
+          <label htmlFor="contactName">Name</label>
           <input
             type="name"
-            class="form-control"
+            className="form-control"
             id="contactName"
             placeholder="First Last"
+            required
           />
         </div>
-        <div class="form-group col-md-4 ml-2 mr-2">
-          <label for="inputEmail4">Email</label>
+        <div className="form-group col ml-3 mr-3">
+          <label htmlFor="contactEmail">Email</label>
           <input
             type="email"
-            class="form-control"
+            className="form-control"
             id="contactEmail"
             placeholder="someone@site.com"
+            required
           />
         </div>
-        <div class="form-group col-md-2 ml-2">
-          <label for="inputEmail4">Phone number</label>
+        <div className="form-group col ml-3 mr-3">
+          <label htmlFor="contactPhone">Phone number</label>
           <input
             type="tel"
-            class="form-control"
+            className="form-control"
             id="contactPhone"
             placeholder="123-456-7880"
+          />
+        </div>
+        <div className="form-group col ml-5">
+          <label htmlFor="extension">Extension</label>
+          <input
+            type="text"
+            className="form-control"
+            id="extension"
+            placeholder="1234"
           />
         </div>
       </div>

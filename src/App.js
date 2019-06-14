@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import ContactInfo from "./components/contactInfo";
-//import TicketInfo from "./components/ticketInfo";
+import TicketInfo from "./components/ticketInfo";
 import "./App.css";
 
 function App() {
@@ -11,11 +11,14 @@ function App() {
           rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
           integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
-          crossorigin="anonymous"
+          crossOrigin="anonymous"
         />
       </head>
       <main className="container">
+        <h3>Contact Information</h3>
         <ContactInfo />
+        <h3>Ticket Information</h3>
+        <TicketInfo />
       </main>
     </React.Fragment>
   );
