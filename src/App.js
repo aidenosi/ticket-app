@@ -14,7 +14,7 @@ function App() {
           crossOrigin="anonymous"
         />
       </head>
-      <main className="container">
+      <main className="container bg-light pb-2 pt-2">
         <h3 className="mt-3">Contact Information</h3>
         <ContactInfo />
         <h3>Ticket Information</h3>
