@@ -15,7 +15,7 @@ function App() {
         />
       </head>
       <main className="container">
-        <h3>Contact Information</h3>
+        <h3 className="mt-3">Contact Information</h3>
         <ContactInfo />
         <h3>Ticket Information</h3>
         <TicketInfo />

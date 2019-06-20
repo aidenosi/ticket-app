@@ -3,7 +3,7 @@ import React from "react";
 const ContactInfo = () => {
   return (
     <form>
-      <div className="form-row align-items-center">
+      <div className="form-row align-items-center mt-3">
         <div className="form-group col mr-3">
           <label htmlFor="contactName">Name</label>
           <input
@@ -43,6 +43,7 @@ const ContactInfo = () => {
           />
         </div>
       </div>
+      <div className="form-row mb-5" />
     </form>
   );
 };
