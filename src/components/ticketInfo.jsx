@@ -1,7 +1,35 @@
 import React, { Component } from "react";
 
 class TicketInfo extends Component {
+  state = {
+    catagoriesAndSubcatagories: [
+      {
+        catagory: "Hardware",
+        subcatagories: ["Laptop", "Desktop", "Peripheral/accessory", "Other"]
+      },
+      {
+        catagory: "Software",
+        subcatagories: ["MS Office", "MS Outlook", "Web browser", "Other"]
+      },
+      { catagory: "Other", subcatagories: ["Other"] }
+    ],
+    selectedCatagory: "Select catagory"
+  };
+
+  handleCatagoryChange = e => {
+    console.log(this.state);
+    this.setState({ selectedCatagory: e.target.value });
+  };
+
   render() {
+    let list;
+    if (this.state.selectedCatagory === "Select catagory") {
+      list = [{ catagory: "Select catagory", subcatagories: [] }];
+    } else {
+      list = this.state.catagoriesAndSubcatagories.filter(list => {
+        return list.catagory === this.state.selectedCatagory;
+      });
+    }
     return (
       <form>
         <div className="form-row align-items-center mt-3 mb-5">
@@ -19,7 +47,7 @@ class TicketInfo extends Component {
               defaultValue="Select type"
               required
             >
-              <option style={{ display: "none" }} disabled value="Select type">
+              <option style={{ display: "none" }} value="Select type">
                 Select type
               </option>
               <option value="Request">Request</option>
@@ -35,11 +63,7 @@ class TicketInfo extends Component {
               defaultValue="Select priority"
               required
             >
-              <option
-                style={{ display: "none" }}
-                disabled
-                value="Select priority"
-              >
+              <option style={{ display: "none" }} value="Select priority">
                 Select priority
               </option>
               <option value="High">High</option>
@@ -52,19 +76,16 @@ class TicketInfo extends Component {
             <select
               className="form-control"
               id="category"
-              defaultValue="Select category"
+              value={this.state.selectedCatagory}
+              onChange={this.handleCatagoryChange.bind(this)}
               required
             >
-              <option
-                style={{ display: "none" }}
-                disabled
-                value="Select category"
-              >
+              <option style={{ display: "none" }} value="Select category">
                 Select category
               </option>
-              <option value="Software">Software</option>
-              <option value="Hardware">Hardware</option>
-              <option value="Other">Other</option>
+              {this.state.catagoriesAndSubcatagories.map((list, i) => {
+                return <option>{list.catagory}</option>;
+              })}
             </select>
           </div>
           <div className="form-group col ml-3">
@@ -75,13 +96,12 @@ class TicketInfo extends Component {
               defaultValue="Select subcategory"
               required
             >
-              <option
-                style={{ display: "none" }}
-                disabled
-                value="Select subcategory"
-              >
+              <option style={{ display: "none" }} value="Select subcategory">
                 Select subcategory
               </option>
+              {list[0].subcatagories.map((subcatagory, i) => {
+                return <option>{subcatagory}</option>;
+              })}
             </select>
           </div>
         </div>
@@ -97,7 +117,7 @@ class TicketInfo extends Component {
               Submit
             </button>
           </div>
-          <button type="button" className="btn btn-danger " id="cancel">
+          <button type="button" className="btn btn-danger" id="cancel">
             Cancel
           </button>
         </div>
