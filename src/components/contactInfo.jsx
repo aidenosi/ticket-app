@@ -33,7 +33,7 @@ const ContactInfo = () => {
             placeholder="123-456-7880"
           />
         </div>
-        <div className="form-group col ml-5">
+        <div className="form-group col ml-3">
           <label htmlFor="extension">Extension</label>
           <input
             type="text"
