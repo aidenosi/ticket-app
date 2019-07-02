@@ -18,8 +18,6 @@ class Ticket extends Component {
   };
 
   handleCatagoryChange = e => {
-    console.log(this.state);
-    console.log(e.target.value);
     this.setState({ selectedCatagory: e.target.value });
   };
 
@@ -107,7 +105,7 @@ class Ticket extends Component {
                   defaultValue="Select type"
                   required
                 >
-                  <option style={{ display: "none" }} value="Select type">
+                  <option style={{ display: "none" }} value="">
                     Select type
                   </option>
                   <option value="Request">Request</option>
@@ -123,7 +121,7 @@ class Ticket extends Component {
                   defaultValue="Select priority"
                   required
                 >
-                  <option style={{ display: "none" }} value="Select priority">
+                  <option style={{ display: "none" }} value="">
                     Select priority
                   </option>
                   <option value="High">High</option>
@@ -140,7 +138,7 @@ class Ticket extends Component {
                   onChange={this.handleCatagoryChange.bind(this)}
                   required
                 >
-                  <option style={{ display: "none" }} value="Select category">
+                  <option style={{ display: "none" }} value="">
                     Select category
                   </option>
                   {this.state.catagoriesAndSubcatagories.map((list, i) => {
@@ -156,10 +154,7 @@ class Ticket extends Component {
                   defaultValue="Select subcategory"
                   required
                 >
-                  <option
-                    style={{ display: "none" }}
-                    value="Select subcategory"
-                  >
+                  <option style={{ display: "none" }} value="">
                     Select subcategory
                   </option>
                   {list[0].subcatagories.map((subcatagory, i) => {
@@ -176,7 +171,7 @@ class Ticket extends Component {
             </div>
             <div className="form-row mb-5">
               <div className="col">
-                <button type="button" className="btn btn-primary" id="submit">
+                <button type="submit" className="btn btn-primary" id="submit">
                   Submit
                 </button>
               </div>

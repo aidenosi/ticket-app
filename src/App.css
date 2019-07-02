@@ -31,3 +31,7 @@
     transform: rotate(360deg);
   }
 }
+
+.displayErrors input:invalid {
+  border-color: red;
+}
