@@ -23,7 +23,8 @@ class Ticket extends Component {
         subcatagories: ["MS Office", "MS Outlook", "Web browser", "Other"]
       },
       { catagory: "Other", subcatagories: ["Other"] }
-    ]
+    ],
+    formEmpty: true
   };
 
   handleCatagoryChange = e => {
@@ -38,33 +39,20 @@ class Ticket extends Component {
     const name = target.name;
 
     this.setState({
-      [name]: value
+      [name]: value,
+      formEmpty: false
     });
   };
 
-  handleSubmit = e => {
-    e.preventDefault();
-    console.log(
-      this.state.contactName,
-      ",",
-      this.state.contactEmail,
-      ",",
-      this.state.contactPhone,
-      ",",
-      this.state.contactExtension,
-      ",",
-      this.state.ticketSummary,
-      ",",
-      this.state.ticketType,
-      ",",
-      this.state.ticketPriority,
-      ",",
-      this.state.ticketCategory,
-      ",",
-      this.state.ticketSubcategory,
-      ",",
-      this.state.ticketDetailedInfo
-    );
+  handleCancel = () => {
+    console.log("in handleCancel");
+    if (this.state.formEmpty) {
+      console.log("inside if");
+      this.props.onCancel();
+    } else {
+      if (window.confirm("Do you wish to discard changes?"))
+        this.props.onCancel();
+    }
   };
 
   render() {
@@ -76,19 +64,12 @@ class Ticket extends Component {
         return list.catagory === this.state.ticketCategory;
       });
     }
+    const { onSubmit, onCancel } = this.props;
     return (
       <React.Fragment>
-        <head>
-          <link
-            rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
-            integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
-            crossOrigin="anonymous"
-          />
-        </head>
         <main className="container bg-light pb-2 pt-2">
           <h3 className="mt-3">Contact Information</h3>
-          <form onSubmit={this.handleSubmit}>
+          <form onSubmit={onSubmit} onCancel={onCancel}>
             <div className="form-row align-items-center mt-3">
               <div className="form-group col mr-3">
                 <label htmlFor="contactName">Name</label>
@@ -240,7 +221,12 @@ class Ticket extends Component {
                   Submit
                 </button>
               </div>
-              <button type="button" className="btn btn-danger" id="cancel">
+              <button
+                type="button"
+                className="btn btn-danger"
+                id="cancel"
+                onClick={this.handleCancel}
+              >
                 Cancel
               </button>
             </div>
