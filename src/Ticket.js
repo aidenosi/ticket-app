@@ -3,6 +3,16 @@ import "./App.css";
 
 class Ticket extends Component {
   state = {
+    contactName: "",
+    contactEmail: "",
+    contactPhone: "",
+    contactExtension: "",
+    ticketSummary: "",
+    ticketType: "",
+    ticketPriority: "",
+    ticketCategory: "Select catagory",
+    ticketSubcategory: "",
+    ticketDetailedInfo: "",
     catagoriesAndSubcatagories: [
       {
         catagory: "Hardware",
@@ -13,21 +23,57 @@ class Ticket extends Component {
         subcatagories: ["MS Office", "MS Outlook", "Web browser", "Other"]
       },
       { catagory: "Other", subcatagories: ["Other"] }
-    ],
-    selectedCatagory: "Select catagory"
+    ]
   };
 
   handleCatagoryChange = e => {
-    this.setState({ selectedCatagory: e.target.value });
+    console.log(e.target.name, ":", e.target.value);
+    this.setState({ ticketCategory: e.target.value });
+  };
+
+  handleInputChange = e => {
+    console.log(e.target.name, ":", e.target.value);
+    const target = e.target;
+    const value = target.value;
+    const name = target.name;
+
+    this.setState({
+      [name]: value
+    });
+  };
+
+  handleSubmit = e => {
+    e.preventDefault();
+    console.log(
+      this.state.contactName,
+      ",",
+      this.state.contactEmail,
+      ",",
+      this.state.contactPhone,
+      ",",
+      this.state.contactExtension,
+      ",",
+      this.state.ticketSummary,
+      ",",
+      this.state.ticketType,
+      ",",
+      this.state.ticketPriority,
+      ",",
+      this.state.ticketCategory,
+      ",",
+      this.state.ticketSubcategory,
+      ",",
+      this.state.ticketDetailedInfo
+    );
   };
 
   render() {
     let list;
-    if (this.state.selectedCatagory === "Select catagory") {
+    if (this.state.ticketCategory === "Select catagory") {
       list = [{ catagory: "Select catagory", subcatagories: [] }];
     } else {
       list = this.state.catagoriesAndSubcatagories.filter(list => {
-        return list.catagory === this.state.selectedCatagory;
+        return list.catagory === this.state.ticketCategory;
       });
     }
     return (
@@ -42,15 +88,17 @@ class Ticket extends Component {
         </head>
         <main className="container bg-light pb-2 pt-2">
           <h3 className="mt-3">Contact Information</h3>
-          <form>
+          <form onSubmit={this.handleSubmit}>
             <div className="form-row align-items-center mt-3">
               <div className="form-group col mr-3">
                 <label htmlFor="contactName">Name</label>
                 <input
                   type="name"
                   className="form-control"
-                  id="contactName"
+                  name="contactName"
                   placeholder="First Last"
+                  value={this.state.contactName}
+                  onChange={this.handleInputChange}
                   required
                 />
               </div>
@@ -59,8 +107,10 @@ class Ticket extends Component {
                 <input
                   type="email"
                   className="form-control"
-                  id="contactEmail"
+                  name="contactEmail"
                   placeholder="someone@site.com"
+                  value={this.state.contactEmail}
+                  onChange={this.handleInputChange}
                   required
                 />
               </div>
@@ -69,17 +119,21 @@ class Ticket extends Component {
                 <input
                   type="tel"
                   className="form-control"
-                  id="contactPhone"
+                  name="contactPhone"
                   placeholder="123-456-7880"
+                  value={this.state.contactPhone}
+                  onChange={this.handleInputChange}
                 />
               </div>
               <div className="form-group col ml-3">
-                <label htmlFor="extension">Extension</label>
+                <label htmlFor="contactExtension">Extension</label>
                 <input
                   type="text"
                   className="form-control"
-                  id="extension"
+                  name="contactExtension"
                   placeholder="1234"
+                  value={this.state.contactExtension}
+                  onChange={this.handleInputChange}
                 />
               </div>
             </div>
@@ -87,22 +141,25 @@ class Ticket extends Component {
             <h3>Ticket Information</h3>
             <div className="form-row align-items-center mt-3 mb-5">
               <div className="form-group col-9">
-                <label htmlFor="Summary">Summary</label>
+                <label htmlFor="ticketSummary">Summary</label>
                 <input
                   type="text"
                   className="form-control"
-                  id="Summary"
+                  name="ticketSummary"
+                  value={this.state.ticketSummary}
+                  onChange={this.handleInputChange}
                   required
                 />
               </div>
             </div>
             <div className="form-row mb-5">
               <div className="form-group col mr-3">
-                <label htmlFor="type">Ticket type</label>
+                <label htmlFor="ticketType">Ticket type</label>
                 <select
                   className="form-control"
-                  id="type"
-                  defaultValue="Select type"
+                  name="ticketType"
+                  value={this.state.ticketType}
+                  onChange={this.handleInputChange}
                   required
                 >
                   <option style={{ display: "none" }} value="">
@@ -114,11 +171,12 @@ class Ticket extends Component {
                 </select>
               </div>
               <div className="form-group col ml-3 mr-3">
-                <label htmlFor="priority">Priority</label>
+                <label htmlFor="ticketPriority">Priority</label>
                 <select
                   className="form-control"
-                  id="priority"
-                  defaultValue="Select priority"
+                  name="ticketPriority"
+                  value={this.state.ticketPriority}
+                  onChange={this.handleInputChange}
                   required
                 >
                   <option style={{ display: "none" }} value="">
@@ -130,11 +188,11 @@ class Ticket extends Component {
                 </select>
               </div>
               <div className="form-group col ml-3 mr-3">
-                <label htmlFor="category">Category</label>
+                <label htmlFor="ticketCategory">Category</label>
                 <select
                   className="form-control"
-                  id="category"
-                  value={this.state.selectedCatagory}
+                  name="ticketCategory"
+                  value={this.state.ticketCategory}
                   onChange={this.handleCatagoryChange.bind(this)}
                   required
                 >
@@ -147,11 +205,12 @@ class Ticket extends Component {
                 </select>
               </div>
               <div className="form-group col ml-3">
-                <label htmlFor="subcategory">Subcategory</label>
+                <label htmlFor="ticketSubcategory">Subcategory</label>
                 <select
                   className="form-control"
-                  id="subcategory"
-                  defaultValue="Select subcategory"
+                  name="ticketSubcategory"
+                  value={this.state.ticketSubcategory}
+                  onChange={this.handleInputChange}
                   required
                 >
                   <option style={{ display: "none" }} value="">
@@ -165,8 +224,14 @@ class Ticket extends Component {
             </div>
             <div className="form-row mb-5">
               <div className="form-group col-12">
-                <label htmlFor="Detailed">Detailed Info</label>
-                <textarea className="form-control" id="Summary" rows="5" />
+                <label htmlFor="ticketDetailedInfo">Detailed Info</label>
+                <textarea
+                  className="form-control"
+                  name="ticketDetailedInfo"
+                  rows="5"
+                  value={this.state.ticketDetailedInfo}
+                  onChange={this.handleInputChange}
+                />
               </div>
             </div>
             <div className="form-row mb-5">
