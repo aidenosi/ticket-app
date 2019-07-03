@@ -7,12 +7,10 @@ class App extends Component {
   };
 
   handleNewTicket = () => {
-    console.log("inside handleNewTicket");
     this.setState({ showTicket: !this.state.showticket });
   };
 
   handleSubmit = e => {
-    console.log(e);
     e.preventDefault();
     console.log(
       e.target.contactName.value,
@@ -35,31 +33,21 @@ class App extends Component {
       ",",
       e.target.ticketDetailedInfo.value
     );
+    window.alert("Ticket has been submitted.");
+    this.setState({ showTicket: !this.state.showTicket });
   };
 
   handleCancel = e => {
-    console.log("in handlecancel");
     this.setState({ showTicket: !this.state.showTicket });
   };
 
   render() {
     let ticket = this.state.showTicket ? (
-      <Ticket
-        onSubmit={this.handleSubmit}
-        onCancel={this.handleCancel}
-        style={{ zIndex: 100 }}
-      />
-    ) : (
-      <div>
-        <h3>Create new ticket</h3>
-        <button
-          type="button"
-          className="btn btn-sm btn-primary"
-          onClick={this.handleNewTicket}
-        >
-          New ticket
-        </button>
+      <div id="_ticket">
+        <Ticket onSubmit={this.handleSubmit} onCancel={this.handleCancel} />
       </div>
+    ) : (
+      ""
     );
     return (
       <React.Fragment>
@@ -69,7 +57,19 @@ class App extends Component {
           integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
           crossOrigin="anonymous"
         />
-        {ticket}
+        <link rel="stylesheet" href="./App.css" />
+        <main className="container bg-light pb-2 pt-2">
+          <div>
+            <button
+              type="button"
+              className="btn btn-sm btn-primary"
+              onClick={this.handleNewTicket}
+            >
+              New ticket
+            </button>
+          </div>
+          {ticket}
+        </main>
       </React.Fragment>
     );
   }

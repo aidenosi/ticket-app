@@ -28,12 +28,10 @@ class Ticket extends Component {
   };
 
   handleCatagoryChange = e => {
-    console.log(e.target.name, ":", e.target.value);
     this.setState({ ticketCategory: e.target.value });
   };
 
   handleInputChange = e => {
-    console.log(e.target.name, ":", e.target.value);
     const target = e.target;
     const value = target.value;
     const name = target.name;
@@ -45,9 +43,7 @@ class Ticket extends Component {
   };
 
   handleCancel = () => {
-    console.log("in handleCancel");
     if (this.state.formEmpty) {
-      console.log("inside if");
       this.props.onCancel();
     } else {
       if (window.confirm("Do you wish to discard changes?"))
