@@ -7,7 +7,7 @@ class App extends Component {
   };
 
   handleNewTicket = () => {
-    this.setState({ showTicket: !this.state.showticket });
+    this.setState({ showTicket: true });
   };
 
   handleSubmit = e => {
@@ -34,11 +34,11 @@ class App extends Component {
       e.target.ticketDetailedInfo.value
     );
     window.alert("Ticket has been submitted.");
-    this.setState({ showTicket: !this.state.showTicket });
+    this.setState({ showTicket: false });
   };
 
   handleCancel = e => {
-    this.setState({ showTicket: !this.state.showTicket });
+    this.setState({ showTicket: false });
   };
 
   render() {
@@ -68,7 +68,7 @@ class App extends Component {
               New ticket
             </button>
           </div>
-          {ticket}
+          <div className="container">{ticket}</div>
         </main>
       </React.Fragment>
     );

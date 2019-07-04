@@ -24,7 +24,8 @@ class Ticket extends Component {
       },
       { catagory: "Other", subcatagories: ["Other"] }
     ],
-    formEmpty: true
+    formEmpty: true,
+    ID: ""
   };
 
   handleCatagoryChange = e => {
