@@ -2,33 +2,40 @@ import React, { Component } from "react";
 import "./App.css";
 
 class Ticket extends Component {
-  state = {
-    contactName: "",
-    contactEmail: "",
-    contactPhone: "",
-    contactExtension: "",
-    ticketSummary: "",
-    ticketType: "",
-    ticketPriority: "",
-    ticketCategory: "Select catagory",
-    ticketSubcategory: "",
-    ticketDetailedInfo: "",
-    catagoriesAndSubcatagories: [
-      {
-        catagory: "Hardware",
-        subcatagories: ["Laptop", "Desktop", "Peripheral/accessory", "Other"]
-      },
-      {
-        catagory: "Software",
-        subcatagories: ["MS Office", "MS Outlook", "Web browser", "Other"]
-      },
-      { catagory: "Other", subcatagories: ["Other"] }
-    ],
-    formEmpty: true,
-    ID: ""
+  constructor(props) {
+    super(props);
+    this.state = {
+      contactName: this.props.name,
+      contactEmail: this.props.email,
+      contactPhone: this.props.phone,
+      contactExtension: this.props.extension,
+      ticketSummary: this.props.summary,
+      ticketType: this.props.type,
+      ticketPriority: this.props.priority,
+      ticketCategory: "Select category",
+      ticketSubcategory: this.props.subcategory,
+      ticketDetailedInfo: this.props.details,
+      categoriesAndSubcategories: [
+        {
+          category: "Hardware",
+          subcategories: ["Laptop", "Desktop", "Peripheral/accessory", "Other"]
+        },
+        {
+          category: "Software",
+          subcategories: ["MS Office", "MS Outlook", "Web browser", "Other"]
+        },
+        { category: "Other", subcategories: ["Other"] }
+      ],
+      formEmpty: true,
+      ID: ""
+    };
+  }
+
+  componentDidMount = () => {
+    console.log(this.state.contactEmail);
   };
 
-  handleCatagoryChange = e => {
+  handlecategoryChange = e => {
     this.setState({ ticketCategory: e.target.value });
   };
 
@@ -54,19 +61,18 @@ class Ticket extends Component {
 
   render() {
     let list;
-    if (this.state.ticketCategory === "Select catagory") {
-      list = [{ catagory: "Select catagory", subcatagories: [] }];
+    if (this.state.ticketCategory === "Select category") {
+      list = [{ category: "Select category", subcategories: [] }];
     } else {
-      list = this.state.catagoriesAndSubcatagories.filter(list => {
-        return list.catagory === this.state.ticketCategory;
+      list = this.state.categoriesAndSubcategories.filter(list => {
+        return list.category === this.props.ticketCategory;
       });
     }
-    const { onSubmit, onCancel } = this.props;
     return (
       <React.Fragment>
         <main className="container bg-light pb-2 pt-2">
           <h3 className="mt-3">Contact Information</h3>
-          <form onSubmit={onSubmit} onCancel={onCancel}>
+          <form onSubmit={this.props.onSubmit} onCancel={this.handleCancel}>
             <div className="form-row align-items-center mt-3">
               <div className="form-group col mr-3">
                 <label htmlFor="contactName">Name</label>
@@ -171,14 +177,14 @@ class Ticket extends Component {
                   className="form-control"
                   name="ticketCategory"
                   value={this.state.ticketCategory}
-                  onChange={this.handleCatagoryChange.bind(this)}
+                  onChange={this.handlecategoryChange.bind(this)}
                   required
                 >
                   <option style={{ display: "none" }} value="">
                     Select category
                   </option>
-                  {this.state.catagoriesAndSubcatagories.map((list, i) => {
-                    return <option>{list.catagory}</option>;
+                  {this.state.categoriesAndSubcategories.map((list, i) => {
+                    return <option key={i}>{list.category}</option>;
                   })}
                 </select>
               </div>
@@ -194,8 +200,8 @@ class Ticket extends Component {
                   <option style={{ display: "none" }} value="">
                     Select subcategory
                   </option>
-                  {list[0].subcatagories.map((subcatagory, i) => {
-                    return <option>{subcatagory}</option>;
+                  {list[0].subcategories.map((subcategory, i) => {
+                    return <option key={i}>{subcategory}</option>;
                   })}
                 </select>
               </div>
