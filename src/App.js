@@ -32,7 +32,10 @@ class App extends Component {
     this.setState({ showTicket: true, newTicket: true });
   };
 
-  handleEditTicket = e => {
+  /**
+   * Handler for opening a ticket.
+   */
+  handleViewTicket = e => {
     let id = e.target.id;
     fetch("http://localhost:3001/tickets/" + id)
       .then(response => response.json())
@@ -45,7 +48,6 @@ class App extends Component {
    */
   handleSubmit = e => {
     e.preventDefault();
-    console.log(e.target.props.name);
     // Fetch request to post form data to databse.
     fetch("http://localhost:3001/tickets", {
       method: "post",
@@ -72,6 +74,37 @@ class App extends Component {
     this.getAllTickets();
   };
 
+  handleEdit = e => {
+    let id = e.target.id;
+    if (window.confirm("Submit changes to ticket #" + id + "?")) {
+      fetch("http://localhost:3001/tickets/" + id, {
+        method: "put",
+        mode: "cors",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: e.target.contactName.value,
+          email: e.target.contactEmail.value,
+          phone: e.target.contactPhone.value,
+          extension: e.target.contactExtension.value,
+          summary: e.target.ticketSummary.value,
+          type: e.target.ticketType.value,
+          priority: e.target.ticketPriority.value,
+          category: e.target.ticketCategory.value,
+          subcategory: e.target.ticketSubcategory.value,
+          details: e.target.ticketDetailedInfo.value
+        })
+      }).then(response => response.json());
+    }
+    this.setState({ showTicket: false, newTicket: false });
+    this.getAllTickets();
+  };
+
+  /**
+   * Hanlder for cancel button.
+   */
   handleCancel = () => {
     this.setState({ showTicket: false, newTicket: false });
   };
@@ -91,13 +124,13 @@ class App extends Component {
           <td>{ticket.priority}</td>
           <td>{ticket.category}</td>
           <td>{ticket.subcategory}</td>
-          <td>
+          <td style={{ textAlign: "right" }}>
             <button
               className="btn btn-sm btn-primary"
-              onClick={this.handleEditTicket}
+              onClick={this.handleViewTicket}
               id={ticket.id}
             >
-              Edit
+              View
             </button>
           </td>
         </tr>
@@ -110,6 +143,7 @@ class App extends Component {
           <Ticket
             onSubmit={this.handleSubmit}
             onCancel={this.handleCancel}
+            id=""
             name=""
             email=""
             phone=""
@@ -127,8 +161,9 @@ class App extends Component {
         <div id="_ticket">
           <Ticket
             key={this.state.requestedTicket.id}
-            onSubmit={this.handleSubmit}
+            onSubmit={this.handleEdit}
             onCancel={this.handleCancel}
+            id={this.state.requestedTicket.id}
             name={this.state.requestedTicket.name}
             email={this.state.requestedTicket.email}
             phone={this.state.requestedTicket.phone}
@@ -145,6 +180,7 @@ class App extends Component {
     ) : (
       ""
     );
+    //this.getAllTickets();
     return (
       <React.Fragment>
         <link
@@ -156,6 +192,13 @@ class App extends Component {
         <link rel="stylesheet" href="./App.css" />
         <main className="container bg-light pb-2 pt-2">
           <div>
+            <button
+              type="button"
+              className="btn btn-sm btn-secondary"
+              onClick={this.getAllTickets}
+            >
+              Refresh tickets
+            </button>
             <button
               type="button"
               className="btn btn-sm btn-primary"

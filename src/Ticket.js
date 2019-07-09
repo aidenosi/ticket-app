@@ -2,9 +2,11 @@ import React, { Component } from "react";
 import "./App.css";
 
 class Ticket extends Component {
+  // Component is fully uncontrolled with key - state is declared by props but is updated separately
   constructor(props) {
     super(props);
     this.state = {
+      ID: this.props.id,
       contactName: this.props.name,
       contactEmail: this.props.email,
       contactPhone: this.props.phone,
@@ -12,7 +14,7 @@ class Ticket extends Component {
       ticketSummary: this.props.summary,
       ticketType: this.props.type,
       ticketPriority: this.props.priority,
-      ticketCategory: "Select category",
+      ticketCategory: this.props.category,
       ticketSubcategory: this.props.subcategory,
       ticketDetailedInfo: this.props.details,
       categoriesAndSubcategories: [
@@ -26,14 +28,9 @@ class Ticket extends Component {
         },
         { category: "Other", subcategories: ["Other"] }
       ],
-      formEmpty: true,
-      ID: ""
+      noChangesMade: true
     };
   }
-
-  componentDidMount = () => {
-    console.log(this.state.contactEmail);
-  };
 
   handlecategoryChange = e => {
     this.setState({ ticketCategory: e.target.value });
@@ -46,12 +43,12 @@ class Ticket extends Component {
 
     this.setState({
       [name]: value,
-      formEmpty: false
+      noChangesMade: false
     });
   };
 
   handleCancel = () => {
-    if (this.state.formEmpty) {
+    if (this.state.noChangesMade) {
       this.props.onCancel();
     } else {
       if (window.confirm("Do you wish to discard changes?"))
@@ -61,21 +58,36 @@ class Ticket extends Component {
 
   render() {
     let list;
-    if (this.state.ticketCategory === "Select category") {
+    if (
+      this.state.ticketCategory === "Select category" ||
+      typeof this.state.ticketCategory === "undefined"
+    ) {
       list = [{ category: "Select category", subcategories: [] }];
     } else {
       list = this.state.categoriesAndSubcategories.filter(list => {
-        return list.category === this.props.ticketCategory;
+        return list.category === this.state.ticketCategory;
       });
     }
     return (
       <React.Fragment>
         <main className="container bg-light pb-2 pt-2">
+          <h1>
+            {this.state.ID === "" ? "New Ticket" : "Ticket #" + this.state.ID}
+          </h1>
+          <hr />
           <h3 className="mt-3">Contact Information</h3>
-          <form onSubmit={this.props.onSubmit} onCancel={this.handleCancel}>
+          <form
+            onSubmit={
+              this.state.noChangesMade
+                ? this.props.onCancel
+                : this.props.onSubmit
+            }
+            onCancel={this.handleCancel}
+            id={this.state.ID}
+          >
             <div className="form-row align-items-center mt-3">
               <div className="form-group col mr-3">
-                <label htmlFor="contactName">Name</label>
+                <label htmlFor="contactName">Name *</label>
                 <input
                   type="name"
                   className="form-control"
@@ -87,7 +99,7 @@ class Ticket extends Component {
                 />
               </div>
               <div className="form-group col ml-3 mr-3">
-                <label htmlFor="contactEmail">Email</label>
+                <label htmlFor="contactEmail">Email *</label>
                 <input
                   type="email"
                   className="form-control"
@@ -105,7 +117,11 @@ class Ticket extends Component {
                   className="form-control"
                   name="contactPhone"
                   placeholder="123-456-7880"
-                  value={this.state.contactPhone}
+                  value={
+                    this.state.contactPhone === null
+                      ? ""
+                      : this.state.contactPhone
+                  }
                   onChange={this.handleInputChange}
                 />
               </div>
@@ -116,7 +132,11 @@ class Ticket extends Component {
                   className="form-control"
                   name="contactExtension"
                   placeholder="1234"
-                  value={this.state.contactExtension}
+                  value={
+                    this.state.contactExtension === null
+                      ? ""
+                      : this.state.contactExtension
+                  }
                   onChange={this.handleInputChange}
                 />
               </div>
@@ -125,7 +145,7 @@ class Ticket extends Component {
             <h3>Ticket Information</h3>
             <div className="form-row align-items-center mt-3 mb-5">
               <div className="form-group col-9">
-                <label htmlFor="ticketSummary">Summary</label>
+                <label htmlFor="ticketSummary">Summary *</label>
                 <input
                   type="text"
                   className="form-control"
@@ -138,7 +158,7 @@ class Ticket extends Component {
             </div>
             <div className="form-row mb-5">
               <div className="form-group col mr-3">
-                <label htmlFor="ticketType">Ticket type</label>
+                <label htmlFor="ticketType">Ticket type *</label>
                 <select
                   className="form-control"
                   name="ticketType"
@@ -155,7 +175,7 @@ class Ticket extends Component {
                 </select>
               </div>
               <div className="form-group col ml-3 mr-3">
-                <label htmlFor="ticketPriority">Priority</label>
+                <label htmlFor="ticketPriority">Priority *</label>
                 <select
                   className="form-control"
                   name="ticketPriority"
@@ -172,7 +192,7 @@ class Ticket extends Component {
                 </select>
               </div>
               <div className="form-group col ml-3 mr-3">
-                <label htmlFor="ticketCategory">Category</label>
+                <label htmlFor="ticketCategory">Category *</label>
                 <select
                   className="form-control"
                   name="ticketCategory"
@@ -189,7 +209,7 @@ class Ticket extends Component {
                 </select>
               </div>
               <div className="form-group col ml-3">
-                <label htmlFor="ticketSubcategory">Subcategory</label>
+                <label htmlFor="ticketSubcategory">Subcategory *</label>
                 <select
                   className="form-control"
                   name="ticketSubcategory"
@@ -208,13 +228,14 @@ class Ticket extends Component {
             </div>
             <div className="form-row mb-5">
               <div className="form-group col-12">
-                <label htmlFor="ticketDetailedInfo">Detailed Info</label>
+                <label htmlFor="ticketDetailedInfo">Detailed Info *</label>
                 <textarea
                   className="form-control"
                   name="ticketDetailedInfo"
                   rows="5"
                   value={this.state.ticketDetailedInfo}
                   onChange={this.handleInputChange}
+                  required
                 />
               </div>
             </div>
