@@ -12,11 +12,13 @@ class Ticket extends Component {
       contactPhone: this.props.phone,
       contactExtension: this.props.extension,
       ticketSummary: this.props.summary,
+      ticketStatus: this.props.status,
       ticketType: this.props.type,
       ticketPriority: this.props.priority,
       ticketCategory: this.props.category,
       ticketSubcategory: this.props.subcategory,
       ticketDetailedInfo: this.props.details,
+      // Array to hold subcategories based on currently selected category
       categoriesAndSubcategories: [
         {
           category: "Hardware",
@@ -28,14 +30,20 @@ class Ticket extends Component {
         },
         { category: "Other", subcategories: ["Other"] }
       ],
-      noChangesMade: true
+      noChangesMade: true // Flag for checking whether changes have been made
     };
   }
 
+  /**
+   * Handler for when catagory is changed so that subcategories update accordingly.
+   */
   handlecategoryChange = e => {
     this.setState({ ticketCategory: e.target.value });
   };
 
+  /**
+   * Handler for when an input is changed so that the change is reflected in the state.
+   */
   handleInputChange = e => {
     const target = e.target;
     const value = target.value;
@@ -47,6 +55,10 @@ class Ticket extends Component {
     });
   };
 
+  /**
+   * Handler for when cancel button is pressed. Confirms with user that they wish to
+   * discard changes if changes have been made.
+   */
   handleCancel = () => {
     if (this.state.noChangesMade) {
       this.props.onCancel();
@@ -57,13 +69,16 @@ class Ticket extends Component {
   };
 
   render() {
-    let list;
+    let list; // Used to populate options for subcategory
     if (
+      // If category is default or undefined...
       this.state.ticketCategory === "Select category" ||
       typeof this.state.ticketCategory === "undefined"
     ) {
+      // ...list contains no subcategories
       list = [{ category: "Select category", subcategories: [] }];
     } else {
+      // Else list will contain the subcategories corresponding to the selected category
       list = this.state.categoriesAndSubcategories.filter(list => {
         return list.category === this.state.ticketCategory;
       });
@@ -72,10 +87,12 @@ class Ticket extends Component {
       <React.Fragment>
         <main className="container bg-light pb-2 pt-2">
           <h1>
+            {/* Display ticket ID number if not new ticket */}
             {this.state.ID === "" ? "New Ticket" : "Ticket #" + this.state.ID}
           </h1>
           <hr />
           <h3 className="mt-3">Contact Information</h3>
+          {/* Use cancel handler if no changes have been made - no point in submitting unchanged data */}
           <form
             onSubmit={
               this.state.noChangesMade
@@ -112,6 +129,7 @@ class Ticket extends Component {
               </div>
               <div className="form-group col ml-3 mr-3">
                 <label htmlFor="contactPhone">Phone number</label>
+                {/* Check if value is null, set value to empty string, otherwise use state value */}
                 <input
                   type="tel"
                   className="form-control"
@@ -127,6 +145,7 @@ class Ticket extends Component {
               </div>
               <div className="form-group col ml-3">
                 <label htmlFor="contactExtension">Extension</label>
+                {/* Check if value is null, set value to empty string, otherwise use state value */}
                 <input
                   type="text"
                   className="form-control"
@@ -143,7 +162,7 @@ class Ticket extends Component {
             </div>
             <div className="form-row mb-5" />
             <h3>Ticket Information</h3>
-            <div className="form-row align-items-center mt-3 mb-5">
+            <div className="form-row mt-3 mb-5">
               <div className="form-group col-9">
                 <label htmlFor="ticketSummary">Summary *</label>
                 <input
@@ -154,6 +173,24 @@ class Ticket extends Component {
                   onChange={this.handleInputChange}
                   required
                 />
+              </div>
+              <div className="form-group col ml-4">
+                <label htmlFor="ticketStatus">Status *</label>
+                <select
+                  className="form-control"
+                  name="ticketStatus"
+                  value={this.state.ticketStatus}
+                  onChange={this.handleInputChange}
+                  required
+                >
+                  <option style={{ display: "none" }} value="">
+                    Select status
+                  </option>
+                  <option value="Open">Open</option>
+                  <option value="In progress">In progress</option>
+                  <option value="On hold">On hold</option>
+                  <option value="Closed">Closed</option>
+                </select>
               </div>
             </div>
             <div className="form-row mb-5">
@@ -203,6 +240,7 @@ class Ticket extends Component {
                   <option style={{ display: "none" }} value="">
                     Select category
                   </option>
+                  {/* Map each category to an <option> */}
                   {this.state.categoriesAndSubcategories.map((list, i) => {
                     return <option key={i}>{list.category}</option>;
                   })}
@@ -220,6 +258,7 @@ class Ticket extends Component {
                   <option style={{ display: "none" }} value="">
                     Select subcategory
                   </option>
+                  {/* Map each subcategory corresponding to the current category to an <option> */}
                   {list[0].subcategories.map((subcategory, i) => {
                     return <option key={i}>{subcategory}</option>;
                   })}

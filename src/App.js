@@ -1,12 +1,22 @@
 import React, { Component } from "react";
 import Ticket from "./Ticket.js";
 
+/*
+------------ TO DO ------------
+  - Use modal for ticket instead of just displaying over site
+  - Find a solution to the issue where the main screen doesn't update after editing/submitting ticket
+  - Fix table columns resizing
+  - Add timestamp to details
+  - Show previous details in uneditable text box, merge new changes upon submitting
+  - Find a better/more efficient way to handle displaying tickets (instead of ternary operator)
+*/
+
 class App extends Component {
   state = {
-    showTicket: false,
-    newTicket: false,
-    allTickets: "",
-    requestedTicket: ""
+    showTicket: false, // Use to determine when to display ticket component
+    newTicket: false, // Used to determine whether data needs to be filled
+    allTickets: "", // Array of all tickets
+    requestedTicket: "" // The last ticket requested to view
   };
 
   /**
@@ -17,7 +27,7 @@ class App extends Component {
   };
 
   /**
-   * Fetch request for all tickets (to populate main menu).
+   * Queries a fetch request for all tickets and updates state list.
    */
   getAllTickets = () => {
     fetch("http://localhost:3001/tickets")
@@ -26,29 +36,29 @@ class App extends Component {
   };
 
   /**
-   * Handler for new ticket.
+   * Handler for new ticket. Displays ticket with no data filled.
    */
   handleNewTicket = () => {
     this.setState({ showTicket: true, newTicket: true });
   };
 
   /**
-   * Handler for opening a ticket.
+   * Handler for opening a ticket. Queries a fetch request for a ticket by ID number.
    */
   handleViewTicket = e => {
     let id = e.target.id;
     fetch("http://localhost:3001/tickets/" + id)
       .then(response => response.json())
       .then(response => this.setState({ requestedTicket: response[0] }));
-    this.setState({ showTicket: true, newTicket: false });
+    this.setState({ showTicket: true, newTicket: false }); // Show ticket, fill data
   };
 
   /**
-   * Handler for submit button.
+   * Handler for submit button. Queries a POST request to send form data to Postgres DB
+   * to submit a new ticket.
    */
   handleSubmit = e => {
     e.preventDefault();
-    // Fetch request to post form data to databse.
     fetch("http://localhost:3001/tickets", {
       method: "post",
       mode: "cors",
@@ -62,6 +72,7 @@ class App extends Component {
         phone: e.target.contactPhone.value,
         extension: e.target.contactExtension.value,
         summary: e.target.ticketSummary.value,
+        status: e.target.ticketStatus.value,
         type: e.target.ticketType.value,
         priority: e.target.ticketPriority.value,
         category: e.target.ticketCategory.value,
@@ -69,11 +80,15 @@ class App extends Component {
         details: e.target.ticketDetailedInfo.value
       })
     });
-    window.alert("Ticket has been submitted.");
-    this.setState({ showTicket: false, newTicket: false });
-    this.getAllTickets();
+    window.alert("Ticket has been submitted."); // Alert user that ticket submitted
+    this.setState({ showTicket: false, newTicket: false }); // Hide ticket
+    this.getAllTickets(); // Refresh ticket list
   };
 
+  /**
+   * Handler for edit button. Queries a PUT request to send form data to Postgres DB
+   * to update a ticket.
+   */
   handleEdit = e => {
     let id = e.target.id;
     if (window.confirm("Submit changes to ticket #" + id + "?")) {
@@ -90,6 +105,7 @@ class App extends Component {
           phone: e.target.contactPhone.value,
           extension: e.target.contactExtension.value,
           summary: e.target.ticketSummary.value,
+          status: e.target.ticketStatus.value,
           type: e.target.ticketType.value,
           priority: e.target.ticketPriority.value,
           category: e.target.ticketCategory.value,
@@ -98,19 +114,19 @@ class App extends Component {
         })
       }).then(response => response.json());
     }
-    this.setState({ showTicket: false, newTicket: false });
-    this.getAllTickets();
+    this.setState({ showTicket: false, newTicket: false }); // Hide ticket
+    this.getAllTickets(); // Refresh ticket list
   };
 
   /**
-   * Hanlder for cancel button.
+   * Handler for cancel button. Hides ticket from view after user confirms (function
+   * called from Ticket.js after confirmation).
    */
   handleCancel = () => {
     this.setState({ showTicket: false, newTicket: false });
   };
 
   render() {
-    // TODO - Find a better way of doing this!!
     let ticketList;
     // If there are tickets...
     if (this.state.allTickets !== "") {
@@ -120,10 +136,12 @@ class App extends Component {
         <tr className="border" key={ticket.id}>
           <td>{ticket.id}</td>
           <td>{ticket.summary}</td>
+          <td>{ticket.status}</td>
           <td>{ticket.type}</td>
           <td>{ticket.priority}</td>
           <td>{ticket.category}</td>
           <td>{ticket.subcategory}</td>
+          {/* View Button */}
           <td style={{ textAlign: "right" }}>
             <button
               className="btn btn-sm btn-primary"
@@ -136,9 +154,10 @@ class App extends Component {
         </tr>
       ));
     }
+    // TODO - Find a better way of doing this!!
     let ticket = this.state.showTicket ? (
       this.state.newTicket ? (
-        //New ticket
+        // New ticket - don't fill fields
         <div id="_ticket">
           <Ticket
             onSubmit={this.handleSubmit}
@@ -149,6 +168,7 @@ class App extends Component {
             phone=""
             extension=""
             summary=""
+            status=""
             type=""
             priority=""
             category="Select category"
@@ -157,7 +177,7 @@ class App extends Component {
           />
         </div>
       ) : (
-        //Edit ticket
+        // Edit ticket - fill fields with data
         <div id="_ticket">
           <Ticket
             key={this.state.requestedTicket.id}
@@ -169,6 +189,7 @@ class App extends Component {
             phone={this.state.requestedTicket.phone}
             extension={this.state.requestedTicket.extension}
             summary={this.state.requestedTicket.summary}
+            status={this.state.requestedTicket.status}
             type={this.state.requestedTicket.type}
             priority={this.state.requestedTicket.priority}
             category={this.state.requestedTicket.category}
@@ -178,9 +199,9 @@ class App extends Component {
         </div>
       )
     ) : (
+      // Don't show ticket
       ""
     );
-    //this.getAllTickets();
     return (
       <React.Fragment>
         <link
@@ -190,8 +211,10 @@ class App extends Component {
           crossOrigin="anonymous"
         />
         <link rel="stylesheet" href="./App.css" />
+        {/* Main container */}
         <main className="container bg-light pb-2 pt-2">
           <div>
+            {/* Refresh and new ticket buttons */}
             <button
               type="button"
               className="btn btn-sm btn-secondary"
@@ -208,6 +231,7 @@ class App extends Component {
             </button>
           </div>
           <hr />
+          {/* List view of tickets */}
           <h3>Tickets</h3>
           <div className="container">
             <table style={{ width: "100%" }}>
@@ -215,6 +239,7 @@ class App extends Component {
                 <tr>
                   <th>ID</th>
                   <th>Summary</th>
+                  <th>Status</th>
                   <th>Type</th>
                   <th>Priority</th>
                   <th>Category</th>
