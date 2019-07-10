@@ -5,7 +5,6 @@ import Ticket from "./Ticket.js";
 ------------ TO DO ------------
   - Use modal for ticket instead of just displaying over site
   - Find a solution to the issue where the main screen doesn't update after editing/submitting ticket
-  - Fix table columns resizing
   - Add new uneditable field for history of ticket (changes to category, type, status, etc)
     - Don't update details unless new information is added
   - Show previous details in uneditable text box, merge new changes upon submitting
@@ -13,6 +12,7 @@ import Ticket from "./Ticket.js";
 
 ------------ DONE ------------
   - Add timestamp to details
+  - Fix table columns resizing
 */
 
 class App extends Component {
@@ -278,7 +278,14 @@ class App extends Component {
           {/* List view of tickets */}
           <h3>Tickets</h3>
           <div className="container">
-            <table style={{ width: "100%" }}>
+            <table
+              className="ticketsTable"
+              style={{
+                width: "100%",
+                tableLayout: "fixed",
+                textOverflow: "auto"
+              }}
+            >
               <tbody>
                 <tr>
                   <th>ID</th>

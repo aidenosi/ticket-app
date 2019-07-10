@@ -32,6 +32,24 @@
   }
 }
 
+.ticketsTable th:nth-child(1),
+.ticketsTable td:nth-child(1) {
+  width: 5%;
+}
+
+.ticketsTable th:nth-child(2),
+.ticketsTable td:nth-child(2) {
+  width: 30%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ticketsTable th:nth-child(n + 3),
+.ticketsTable td:nth-child(n + 3) {
+  width: 10%;
+}
+
 #container {
   position: relative;
 }
