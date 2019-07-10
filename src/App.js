@@ -6,9 +6,13 @@ import Ticket from "./Ticket.js";
   - Use modal for ticket instead of just displaying over site
   - Find a solution to the issue where the main screen doesn't update after editing/submitting ticket
   - Fix table columns resizing
-  - Add timestamp to details
+  - Add new uneditable field for history of ticket (changes to category, type, status, etc)
+    - Don't update details unless new information is added
   - Show previous details in uneditable text box, merge new changes upon submitting
   - Find a better/more efficient way to handle displaying tickets (instead of ternary operator)
+
+------------ DONE ------------
+  - Add timestamp to details
 */
 
 class App extends Component {
@@ -59,6 +63,26 @@ class App extends Component {
    */
   handleSubmit = e => {
     e.preventDefault();
+    // Write timestamp for when ticket was submitted to details
+    var d = new Date(),
+      dformat =
+        [
+          ("00" + d.getDate()).slice(-2),
+          ("00" + (d.getMonth() + 1)).slice(-2),
+          d.getFullYear()
+        ].join("/") +
+        " at " +
+        [
+          ("00" + d.getHours()).slice(-2),
+          ("00" + d.getMinutes()).slice(-2),
+          ("00" + d.getSeconds()).slice(-2)
+        ].join(":");
+    const detailsWithTimestamp =
+      "\r\n__________________________________________\r\n" +
+      "Submitted on: " +
+      dformat +
+      ":\r\n\r\n" +
+      e.target.ticketDetailedInfo.value;
     fetch("http://localhost:3001/tickets", {
       method: "post",
       mode: "cors",
@@ -77,7 +101,7 @@ class App extends Component {
         priority: e.target.ticketPriority.value,
         category: e.target.ticketCategory.value,
         subcategory: e.target.ticketSubcategory.value,
-        details: e.target.ticketDetailedInfo.value
+        details: detailsWithTimestamp
       })
     });
     window.alert("Ticket has been submitted."); // Alert user that ticket submitted
@@ -92,6 +116,26 @@ class App extends Component {
   handleEdit = e => {
     let id = e.target.id;
     if (window.confirm("Submit changes to ticket #" + id + "?")) {
+      // Write timestamp for when changes were made in details.
+      var d = new Date(),
+        dformat =
+          [
+            ("00" + d.getDate()).slice(-2),
+            ("00" + (d.getMonth() + 1)).slice(-2),
+            d.getFullYear()
+          ].join("/") +
+          " at " +
+          [
+            ("00" + d.getHours()).slice(-2),
+            ("00" + d.getMinutes()).slice(-2),
+            ("00" + d.getSeconds()).slice(-2)
+          ].join(":");
+      const detailsWithTimestamp =
+        "\r\n__________________________________________\r\n" +
+        "Edited on: " +
+        dformat +
+        ":\r\n\r\n" +
+        e.target.ticketDetailedInfo.value;
       fetch("http://localhost:3001/tickets/" + id, {
         method: "put",
         mode: "cors",
@@ -110,7 +154,7 @@ class App extends Component {
           priority: e.target.ticketPriority.value,
           category: e.target.ticketCategory.value,
           subcategory: e.target.ticketSubcategory.value,
-          details: e.target.ticketDetailedInfo.value
+          details: detailsWithTimestamp
         })
       }).then(response => response.json());
     }
