@@ -17,6 +17,7 @@ class Ticket extends Component {
       ticketPriority: this.props.priority,
       ticketCategory: this.props.category,
       ticketSubcategory: this.props.subcategory,
+      ticketNewDetailedInfo: "",
       ticketDetailedInfo: this.props.details,
       // Array to hold subcategories based on currently selected category
       categoriesAndSubcategories: [
@@ -70,6 +71,21 @@ class Ticket extends Component {
 
   render() {
     let list; // Used to populate options for subcategory
+    let previousInfo = this.state.ticketDetailedInfo !== "";
+    const pastDetailedInfo = previousInfo ? (
+      <div className="form-row mb-5">
+        <div className="form-group col-12">
+          <label htmlFor="ticketDetailedInfo">Past Detailed Info</label>
+          <textarea
+            className="form-control"
+            name="ticketDetailedInfo"
+            rows="5"
+            value={this.state.ticketDetailedInfo}
+            disabled
+          />
+        </div>
+      </div>
+    ) : null;
     if (
       // If category is default or undefined...
       this.state.ticketCategory === "Select category" ||
@@ -267,17 +283,18 @@ class Ticket extends Component {
             </div>
             <div className="form-row mb-5">
               <div className="form-group col-12">
-                <label htmlFor="ticketDetailedInfo">Detailed Info *</label>
+                <label htmlFor="ticketNewDetailedInfo">Detailed Info *</label>
                 <textarea
                   className="form-control"
-                  name="ticketDetailedInfo"
+                  name="ticketNewDetailedInfo"
                   rows="5"
-                  value={this.state.ticketDetailedInfo}
+                  value={this.state.ticketNewDetailedInfo}
                   onChange={this.handleInputChange}
                   required
                 />
               </div>
             </div>
+            {pastDetailedInfo}
             <div className="form-row mb-5">
               <div className="col">
                 <button type="submit" className="btn btn-primary" id="submit">

@@ -4,16 +4,16 @@ import Modal from "react-bootstrap/Modal";
 
 /*
 ------------ TO DO ------------
-  - Find a solution to the issue where the main screen doesn't update after editing/submitting ticket
+  - Find a solution to the issue where the main screen doesn't update after editing ticket
   - Add new uneditable field for history of ticket (changes to category, type, status, etc)
     - Don't update details unless new information is added
-  - Show previous details in uneditable text box, merge new changes upon submitting
   - Find a better/more efficient way to handle displaying tickets (instead of ternary operator)
 
 ------------ DONE ------------
   - Add timestamp to details
   - Fix table columns resizing
   - Use modal for ticket instead of just displaying over site
+  - Show previous details in uneditable text box, merge new changes upon submitting
 */
 
 class App extends Component {
@@ -82,8 +82,8 @@ class App extends Component {
       "\r\n__________________________________________\r\n" +
       "Submitted on: " +
       dformat +
-      ":\r\n\r\n" +
-      e.target.ticketDetailedInfo.value;
+      ":\r\n" +
+      e.target.ticketNewDetailedInfo.value;
     fetch("http://localhost:3001/tickets", {
       method: "post",
       mode: "cors",
@@ -135,7 +135,8 @@ class App extends Component {
         "\r\n__________________________________________\r\n" +
         "Edited on: " +
         dformat +
-        ":\r\n\r\n" +
+        ":\r\n" +
+        e.target.ticketNewDetailedInfo.value +
         e.target.ticketDetailedInfo.value;
       fetch("http://localhost:3001/tickets/" + id, {
         method: "put",
