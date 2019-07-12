@@ -103,7 +103,7 @@ class Ticket extends Component {
             id={this.state.ID}
           >
             <div className="form-row align-items-center mt-3">
-              <div className="form-group col mr-3">
+              <div className="form-group col mr-1">
                 <label htmlFor="contactName">Name *</label>
                 <input
                   type="name"
@@ -115,7 +115,7 @@ class Ticket extends Component {
                   required
                 />
               </div>
-              <div className="form-group col ml-3 mr-3">
+              <div className="form-group col ml-1 mr-1">
                 <label htmlFor="contactEmail">Email *</label>
                 <input
                   type="email"
@@ -127,7 +127,7 @@ class Ticket extends Component {
                   required
                 />
               </div>
-              <div className="form-group col ml-3 mr-3">
+              <div className="form-group col ml-1 mr-1">
                 <label htmlFor="contactPhone">Phone number</label>
                 {/* Check if value is null, set value to empty string, otherwise use state value */}
                 <input
@@ -143,7 +143,7 @@ class Ticket extends Component {
                   onChange={this.handleInputChange}
                 />
               </div>
-              <div className="form-group col ml-3">
+              <div className="form-group col ml-1">
                 <label htmlFor="contactExtension">Extension</label>
                 {/* Check if value is null, set value to empty string, otherwise use state value */}
                 <input
@@ -174,7 +174,7 @@ class Ticket extends Component {
                   required
                 />
               </div>
-              <div className="form-group col ml-4">
+              <div className="form-group col ml-2">
                 <label htmlFor="ticketStatus">Status *</label>
                 <select
                   className="form-control"
@@ -194,7 +194,7 @@ class Ticket extends Component {
               </div>
             </div>
             <div className="form-row mb-5">
-              <div className="form-group col mr-3">
+              <div className="form-group col mr-1">
                 <label htmlFor="ticketType">Ticket type *</label>
                 <select
                   className="form-control"
@@ -211,7 +211,7 @@ class Ticket extends Component {
                   <option value="Task">Task</option>
                 </select>
               </div>
-              <div className="form-group col ml-3 mr-3">
+              <div className="form-group col ml-1 mr-1">
                 <label htmlFor="ticketPriority">Priority *</label>
                 <select
                   className="form-control"
@@ -228,7 +228,7 @@ class Ticket extends Component {
                   <option value="Low">Low</option>
                 </select>
               </div>
-              <div className="form-group col ml-3 mr-3">
+              <div className="form-group col ml-1 mr-1">
                 <label htmlFor="ticketCategory">Category *</label>
                 <select
                   className="form-control"
@@ -246,7 +246,7 @@ class Ticket extends Component {
                   })}
                 </select>
               </div>
-              <div className="form-group col ml-3">
+              <div className="form-group col ml-1">
                 <label htmlFor="ticketSubcategory">Subcategory *</label>
                 <select
                   className="form-control"

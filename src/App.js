@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import Ticket from "./Ticket.js";
+import Modal from "react-bootstrap/Modal";
 
 /*
 ------------ TO DO ------------
-  - Use modal for ticket instead of just displaying over site
   - Find a solution to the issue where the main screen doesn't update after editing/submitting ticket
   - Add new uneditable field for history of ticket (changes to category, type, status, etc)
     - Don't update details unless new information is added
@@ -13,11 +13,12 @@ import Ticket from "./Ticket.js";
 ------------ DONE ------------
   - Add timestamp to details
   - Fix table columns resizing
+  - Use modal for ticket instead of just displaying over site
 */
 
 class App extends Component {
   state = {
-    showTicket: false, // Use to determine when to display ticket component
+    showModal: false, // Use to determine when to display modal ticket component
     newTicket: false, // Used to determine whether data needs to be filled
     allTickets: "", // Array of all tickets
     requestedTicket: "" // The last ticket requested to view
@@ -43,7 +44,7 @@ class App extends Component {
    * Handler for new ticket. Displays ticket with no data filled.
    */
   handleNewTicket = () => {
-    this.setState({ showTicket: true, newTicket: true });
+    this.setState({ showModal: true, newTicket: true });
   };
 
   /**
@@ -54,7 +55,7 @@ class App extends Component {
     fetch("http://localhost:3001/tickets/" + id)
       .then(response => response.json())
       .then(response => this.setState({ requestedTicket: response[0] }));
-    this.setState({ showTicket: true, newTicket: false }); // Show ticket, fill data
+    this.setState({ showModal: true, newTicket: false }); // Show ticket, fill data
   };
 
   /**
@@ -105,7 +106,7 @@ class App extends Component {
       })
     });
     window.alert("Ticket has been submitted."); // Alert user that ticket submitted
-    this.setState({ showTicket: false, newTicket: false }); // Hide ticket
+    this.setState({ newTicket: false, showModal: false }); // Hide ticket
     this.getAllTickets(); // Refresh ticket list
   };
 
@@ -158,7 +159,7 @@ class App extends Component {
         })
       }).then(response => response.json());
     }
-    this.setState({ showTicket: false, newTicket: false }); // Hide ticket
+    this.setState({ newTicket: false, showModal: false }); // Hide ticket
     this.getAllTickets(); // Refresh ticket list
   };
 
@@ -167,7 +168,7 @@ class App extends Component {
    * called from Ticket.js after confirmation).
    */
   handleCancel = () => {
-    this.setState({ showTicket: false, newTicket: false });
+    this.setState({ showModal: false, newTicket: false });
   };
 
   render() {
@@ -199,7 +200,7 @@ class App extends Component {
       ));
     }
     // TODO - Find a better way of doing this!!
-    let ticket = this.state.showTicket ? (
+    let ticket = this.state.showModal ? (
       this.state.newTicket ? (
         // New ticket - don't fill fields
         <div id="_ticket">
@@ -260,14 +261,12 @@ class App extends Component {
           <div>
             {/* Refresh and new ticket buttons */}
             <button
-              type="button"
               className="btn btn-sm btn-secondary"
               onClick={this.getAllTickets}
             >
               Refresh tickets
             </button>
             <button
-              type="button"
               className="btn btn-sm btn-primary"
               onClick={this.handleNewTicket}
             >
@@ -300,7 +299,13 @@ class App extends Component {
               <tbody>{ticketList}</tbody>
             </table>
           </div>
-          <div className="container">{ticket}</div>
+          <Modal
+            size="lg"
+            show={this.state.showModal}
+            onHide={this.handleHideModal}
+          >
+            {ticket}
+          </Modal>
         </main>
       </React.Fragment>
     );
