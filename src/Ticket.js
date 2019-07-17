@@ -71,21 +71,22 @@ class Ticket extends Component {
 
   render() {
     let list; // Used to populate options for subcategory
-    let previousInfo = this.state.ticketDetailedInfo !== "";
-    const pastDetailedInfo = previousInfo ? (
-      <div className="form-row mb-5">
-        <div className="form-group col-12">
-          <label htmlFor="ticketDetailedInfo">Past Detailed Info</label>
-          <textarea
-            className="form-control"
-            name="ticketDetailedInfo"
-            rows="5"
-            value={this.state.ticketDetailedInfo}
-            disabled
-          />
+    //Only show previous details if there are any. New tickets will not have the text box.
+    const pastDetailedInfo =
+      this.state.ticketDetailedInfo !== "" ? (
+        <div className="form-row mb-5">
+          <div className="form-group col-12">
+            <label htmlFor="ticketDetailedInfo">Past Detailed Info</label>
+            <textarea
+              className="form-control"
+              name="ticketDetailedInfo"
+              rows="5"
+              value={this.state.ticketDetailedInfo}
+              disabled
+            />
+          </div>
         </div>
-      </div>
-    ) : null;
+      ) : null;
     if (
       // If category is default or undefined...
       this.state.ticketCategory === "Select category" ||

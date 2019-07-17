@@ -5,6 +5,7 @@ import Modal from "react-bootstrap/Modal";
 /*
 ------------ TO DO ------------
   - Find a solution to the issue where the main screen doesn't update after editing ticket
+  - Fix issue where tickets don't show new details after Submitting then re-opening (have to re-open, cancel, then open again)
   - Add new uneditable field for history of ticket (changes to category, type, status, etc)
     - Don't update details unless new information is added
   - Find a better/more efficient way to handle displaying tickets (instead of ternary operator)
@@ -25,10 +26,11 @@ class App extends Component {
   };
 
   /**
-   * Populate state with tickets upon loading.
+   * Populate state with tickets and set document title upon loading.
    */
   componentDidMount = () => {
     this.getAllTickets();
+    document.title = "PickIt";
   };
 
   /**
@@ -106,8 +108,7 @@ class App extends Component {
       })
     });
     window.alert("Ticket has been submitted."); // Alert user that ticket submitted
-    this.setState({ newTicket: false, showModal: false }); // Hide ticket
-    this.getAllTickets(); // Refresh ticket list
+    this.setState({ newTicket: false, showModal: false }, this.getAllTickets()); // Hide ticket
   };
 
   /**
@@ -116,6 +117,7 @@ class App extends Component {
    */
   handleEdit = e => {
     let id = e.target.id;
+    // If user confirms submission
     if (window.confirm("Submit changes to ticket #" + id + "?")) {
       // Write timestamp for when changes were made in details.
       var d = new Date(),
@@ -159,9 +161,14 @@ class App extends Component {
           details: detailsWithTimestamp
         })
       }).then(response => response.json());
+      this.setState(
+        { newTicket: false, showModal: false, requestedTicket: "" },
+        this.getAllTickets()
+      ); // Hide ticket
+      // If user presses cancel, do nothing
+    } else {
+      e.preventDefault();
     }
-    this.setState({ newTicket: false, showModal: false }); // Hide ticket
-    this.getAllTickets(); // Refresh ticket list
   };
 
   /**
@@ -169,7 +176,7 @@ class App extends Component {
    * called from Ticket.js after confirmation).
    */
   handleCancel = () => {
-    this.setState({ showModal: false, newTicket: false });
+    this.setState({ showModal: false, newTicket: false, requestedTicket: "" });
   };
 
   render() {
@@ -179,7 +186,7 @@ class App extends Component {
       let tickets = this.state.allTickets;
       // ...map each ticket to a row with properties displayed
       ticketList = tickets.map(ticket => (
-        <tr className="border" key={ticket.id}>
+        <tr className="border-bottom" key={ticket.id}>
           <td>{ticket.id}</td>
           <td>{ticket.summary}</td>
           <td>{ticket.status}</td>
@@ -287,7 +294,7 @@ class App extends Component {
               }}
             >
               <tbody>
-                <tr>
+                <tr className="border-bottom border-dark">
                   <th>ID</th>
                   <th>Summary</th>
                   <th>Status</th>
