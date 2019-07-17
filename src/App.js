@@ -4,8 +4,6 @@ import Modal from "react-bootstrap/Modal";
 
 /*
 ------------ TO DO ------------
-  - Find a solution to the issue where the main screen doesn't update after editing ticket
-  - Fix issue where tickets don't show new details after Submitting then re-opening (have to re-open, cancel, then open again)
   - Add new uneditable field for history of ticket (changes to category, type, status, etc)
     - Don't update details unless new information is added
   - Find a better/more efficient way to handle displaying tickets (instead of ternary operator)
@@ -15,6 +13,8 @@ import Modal from "react-bootstrap/Modal";
   - Fix table columns resizing
   - Use modal for ticket instead of just displaying over site
   - Show previous details in uneditable text box, merge new changes upon submitting
+  - Fix issue where tickets don't show new details after Submitting then re-opening (have to re-open, cancel, then open again)
+  - Find a solution to the issue where the main screen doesn't update after editing ticket (SORT OF FIXED)
 */
 
 class App extends Component {
@@ -66,49 +66,55 @@ class App extends Component {
    */
   handleSubmit = e => {
     e.preventDefault();
-    // Write timestamp for when ticket was submitted to details
-    var d = new Date(),
-      dformat =
-        [
-          ("00" + d.getDate()).slice(-2),
-          ("00" + (d.getMonth() + 1)).slice(-2),
-          d.getFullYear()
-        ].join("/") +
-        " at " +
-        [
-          ("00" + d.getHours()).slice(-2),
-          ("00" + d.getMinutes()).slice(-2),
-          ("00" + d.getSeconds()).slice(-2)
-        ].join(":");
-    const detailsWithTimestamp =
-      "\r\n__________________________________________\r\n" +
-      "Submitted on: " +
-      dformat +
-      ":\r\n" +
-      e.target.ticketNewDetailedInfo.value;
-    fetch("http://localhost:3001/tickets", {
-      method: "post",
-      mode: "cors",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name: e.target.contactName.value,
-        email: e.target.contactEmail.value,
-        phone: e.target.contactPhone.value,
-        extension: e.target.contactExtension.value,
-        summary: e.target.ticketSummary.value,
-        status: e.target.ticketStatus.value,
-        type: e.target.ticketType.value,
-        priority: e.target.ticketPriority.value,
-        category: e.target.ticketCategory.value,
-        subcategory: e.target.ticketSubcategory.value,
-        details: detailsWithTimestamp
-      })
-    });
-    window.alert("Ticket has been submitted."); // Alert user that ticket submitted
-    this.setState({ newTicket: false, showModal: false }, this.getAllTickets()); // Hide ticket
+    // If user confirms submission
+    if (window.confirm("Submit ticket?")) {
+      // Write timestamp for when ticket was submitted to details
+      var d = new Date(),
+        dformat =
+          [
+            ("00" + d.getDate()).slice(-2),
+            ("00" + (d.getMonth() + 1)).slice(-2),
+            d.getFullYear()
+          ].join("/") +
+          " at " +
+          [
+            ("00" + d.getHours()).slice(-2),
+            ("00" + d.getMinutes()).slice(-2),
+            ("00" + d.getSeconds()).slice(-2)
+          ].join(":");
+      const detailsWithTimestamp =
+        "\r\n__________________________________________\r\n" +
+        "Submitted on: " +
+        dformat +
+        ":\r\n" +
+        e.target.ticketNewDetailedInfo.value;
+      fetch("http://localhost:3001/tickets", {
+        method: "post",
+        mode: "cors",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: e.target.contactName.value,
+          email: e.target.contactEmail.value,
+          phone: e.target.contactPhone.value,
+          extension: e.target.contactExtension.value,
+          summary: e.target.ticketSummary.value,
+          status: e.target.ticketStatus.value,
+          type: e.target.ticketType.value,
+          priority: e.target.ticketPriority.value,
+          category: e.target.ticketCategory.value,
+          subcategory: e.target.ticketSubcategory.value,
+          details: detailsWithTimestamp
+        })
+      });
+      window.alert("Ticket has been submitted."); // Alert user that ticket submitted
+      this.setState(
+        { newTicket: false, showModal: false },
+        this.getAllTickets()
+      ); // Hide ticket
+    }
   };
 
   /**
@@ -161,10 +167,11 @@ class App extends Component {
           details: detailsWithTimestamp
         })
       }).then(response => response.json());
+      window.alert("Changes have been submitted."); // Alert user that changes submitted
       this.setState(
         { newTicket: false, showModal: false, requestedTicket: "" },
         this.getAllTickets()
-      ); // Hide ticket
+      );
       // If user presses cancel, do nothing
     } else {
       e.preventDefault();
@@ -307,11 +314,7 @@ class App extends Component {
               <tbody>{ticketList}</tbody>
             </table>
           </div>
-          <Modal
-            size="lg"
-            show={this.state.showModal}
-            onHide={this.handleHideModal}
-          >
+          <Modal size="lg" show={this.state.showModal}>
             {ticket}
           </Modal>
         </main>
