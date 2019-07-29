@@ -19,6 +19,7 @@ class Ticket extends Component {
       ticketSubcategory: this.props.subcategory,
       ticketNewDetailedInfo: "",
       ticketDetailedInfo: this.props.details,
+      ticketHistory: this.props.history,
       // Array to hold subcategories based on currently selected category
       categoriesAndSubcategories: [
         {
@@ -32,7 +33,8 @@ class Ticket extends Component {
         { category: "Other", subcategories: ["Other"] }
       ],
       noChangesMade: true, // Flag for checking whether changes have been made
-      changedValues: [] // Array to store names of fields whose values have changed
+      changedValues: [], // Array to store names of fields whose values have changed
+      showHistory: false
     };
   }
 
@@ -126,7 +128,7 @@ class Ticket extends Component {
           }
           break;
         default:
-          console.log("No field found with name " + name);
+          console.error("No field found with name " + name);
           break;
       }
     }
@@ -145,24 +147,55 @@ class Ticket extends Component {
     }
   };
 
+  handleToggleHistory = e => {
+    e.preventDefault();
+    this.setState({ showHistory: !this.state.showHistory });
+  };
+
   render() {
     let list; // Used to populate options for subcategory
     //Only show previous details if there are any. New tickets will not have the text box.
-    const pastDetailedInfo =
+    const pastDetailsAndShowHistoryButton =
       this.state.ticketDetailedInfo !== "" ? (
-        <div className="form-row mb-5">
-          <div className="form-group col-12">
-            <label htmlFor="ticketDetailedInfo">Past Detailed Info</label>
-            <textarea
-              className="form-control"
-              name="ticketDetailedInfo"
-              rows="5"
-              value={this.state.ticketDetailedInfo}
-              disabled
-            />
+        <React.Fragment>
+          <div className="form-row mb-1">
+            <div className="form-group col-12">
+              <label htmlFor="ticketDetailedInfo">Past Detailed Info</label>
+              <textarea
+                className="form-control"
+                name="ticketDetailedInfo"
+                rows="5"
+                value={this.state.ticketDetailedInfo}
+                disabled
+              />
+            </div>
           </div>
-        </div>
+          <div className="form-row mb-2">
+            <div className="form-group col-12">
+              <button
+                className="btn btn-secondary"
+                value={this.state.ticketDetailedInfo}
+                onClick={this.handleToggleHistory}
+              >
+                Toggle ticket history
+              </button>
+            </div>
+          </div>
+        </React.Fragment>
       ) : null;
+    const ticketHistoryBox = this.state.showHistory ? (
+      <div className="form-row mb-1">
+        <div className="form-group col-12">
+          <textarea
+            className="form-control"
+            name="ticketHistoryBox"
+            rows="5"
+            value={this.state.ticketHistory}
+            disabled
+          />
+        </div>
+      </div>
+    ) : null;
     if (
       // If category is default or undefined...
       this.state.ticketCategory === "Select category" ||
@@ -371,8 +404,9 @@ class Ticket extends Component {
                 />
               </div>
             </div>
-            {pastDetailedInfo}
-            <div className="form-row mb-5">
+            {pastDetailsAndShowHistoryButton}
+            {ticketHistoryBox}
+            <div className="form-row mb-2">
               <div className="col">
                 <button type="submit" className="btn btn-primary" id="submit">
                   Submit

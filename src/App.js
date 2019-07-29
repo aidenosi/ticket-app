@@ -4,8 +4,6 @@ import Modal from "react-bootstrap/Modal";
 
 /*
 ------------ TO DO ------------
-  - Add new uneditable field for history of ticket (changes to category, type, status, etc)
-    - Don't update details unless new information is added
   - Sort table view
   - Search for tickets
   - Find a better/more efficient way to handle displaying tickets (instead of ternary operator)
@@ -20,6 +18,8 @@ import Modal from "react-bootstrap/Modal";
   - Find a solution to the issue where the main screen doesn't update after editing ticket 
     -Fixed by giving user prompt which allows React time to update state
   - Ticket now actually checks to see if changes have been made (ie new value is different than value passed in)
+  - Add new uneditable field for history of ticket (changes to category, type, status, etc)
+    - Don't update details unless new information is added
 */
 
 class App extends Component {
@@ -111,7 +111,8 @@ class App extends Component {
           priority: e.target.ticketPriority.value,
           category: e.target.ticketCategory.value,
           subcategory: e.target.ticketSubcategory.value,
-          details: detailsWithTimestamp
+          details: detailsWithTimestamp,
+          history: ""
         })
       });
       window.alert("Ticket has been submitted."); // Alert user that ticket submitted
@@ -130,6 +131,7 @@ class App extends Component {
     let id = e.target.id;
     // If user confirms submission
     if (window.confirm("Submit changes to ticket #" + id + "?")) {
+      e.preventDefault();
       // Write timestamp for when changes were made in details.
       var d = new Date(),
         dformat =
@@ -151,6 +153,121 @@ class App extends Component {
         ":\r\n" +
         e.target.ticketNewDetailedInfo.value +
         e.target.ticketDetailedInfo.value;
+
+      var changes = dformat + ":\r\n"; // Timestamp for changes
+      // Inner function to add line for any changes made
+      function changedValue(field, oldValue, newValue) {
+        return field === "Details"
+          ? "Ticket details updated.\r\n"
+          : '"' +
+              field +
+              '" changed from "' +
+              oldValue +
+              '" to "' +
+              newValue +
+              '"\r\n';
+      }
+      // This series of if statements detect if changes have been made, and if so, calls inner function to write these changes
+      if (e.target.contactName.value !== this.state.requestedTicket.name) {
+        changes += changedValue(
+          "Name",
+          this.state.requestedTicket.name,
+          e.target.contactName.value
+        );
+      }
+      if (e.target.contactEmail.value !== this.state.requestedTicket.email) {
+        changes += changedValue(
+          "Email",
+          this.state.requestedTicket.email,
+          e.target.contactEmail.value
+        );
+      }
+      if (e.target.contactPhone.value !== this.state.requestedTicket.phone) {
+        if (
+          e.target.contactPhone.value === "" &&
+          this.state.requestedTicket.phone !== null
+        ) {
+          changes += changedValue(
+            "Phone",
+            this.state.requestedTicket.phone,
+            e.target.contactPhone.value
+          );
+        }
+      }
+      if (
+        e.target.contactExtension.value !== this.state.requestedTicket.extension
+      ) {
+        if (
+          e.target.contactExtension.value === "" &&
+          this.state.requestedTicket.extension !== null
+        ) {
+          changes += changedValue(
+            "Extension",
+            this.state.requestedTicket.extension,
+            e.target.contactExtension.value
+          );
+        }
+      }
+      if (e.target.ticketSummary.value !== this.state.requestedTicket.summary) {
+        changes += changedValue(
+          "Summary",
+          this.state.requestedTicket.summary,
+          e.target.ticketSummary.value
+        );
+      }
+      if (e.target.ticketStatus.value !== this.state.requestedTicket.status) {
+        changes += changedValue(
+          "Status",
+          this.state.requestedTicket.status,
+          e.target.ticketStatus.value
+        );
+      }
+      if (e.target.ticketType.value !== this.state.requestedTicket.type) {
+        changes += changedValue(
+          "Type",
+          this.state.requestedTicket.type,
+          e.target.ticketType.value
+        );
+      }
+      if (
+        e.target.ticketPriority.value !== this.state.requestedTicket.priority
+      ) {
+        changes += changedValue(
+          "Priority",
+          this.state.requestedTicket.priority,
+          e.target.ticketPriority.value
+        );
+      }
+      if (
+        e.target.ticketCategory.value !== this.state.requestedTicket.category
+      ) {
+        changes += changedValue(
+          "Category",
+          this.state.requestedTicket.category,
+          e.target.ticketCategory.value
+        );
+      }
+      if (
+        e.target.ticketSubcategory.value !==
+        this.state.requestedTicket.subcategory
+      ) {
+        changes += changedValue(
+          "Subcategory",
+          this.state.requestedTicket.subcategory,
+          e.target.ticketSubcategory.value
+        );
+      }
+      if (
+        e.target.ticketDetailedInfo.value !== this.state.requestedTicket.details
+      ) {
+        changes += changedValue(
+          "Details",
+          this.state.requestedTicket.details,
+          e.target.ticketDetailedInfo.value
+        );
+      }
+
+      changes += "\r\n" + this.state.requestedTicket.history;
       fetch("http://localhost:3001/tickets/" + id, {
         method: "put",
         mode: "cors",
@@ -169,7 +286,8 @@ class App extends Component {
           priority: e.target.ticketPriority.value,
           category: e.target.ticketCategory.value,
           subcategory: e.target.ticketSubcategory.value,
-          details: detailsWithTimestamp
+          details: detailsWithTimestamp,
+          history: changes
         })
       }).then(response => response.json());
       window.alert("Changes have been submitted."); // Alert user that changes submitted
@@ -239,6 +357,7 @@ class App extends Component {
             category="Select category"
             subcategory=""
             details=""
+            history=""
           />
         </div>
       ) : (
@@ -260,6 +379,7 @@ class App extends Component {
             category={this.state.requestedTicket.category}
             subcategory={this.state.requestedTicket.subcategory}
             details={this.state.requestedTicket.details}
+            history={this.state.requestedTicket.history}
           />
         </div>
       )
