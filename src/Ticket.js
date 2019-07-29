@@ -31,7 +31,8 @@ class Ticket extends Component {
         },
         { category: "Other", subcategories: ["Other"] }
       ],
-      noChangesMade: true // Flag for checking whether changes have been made
+      noChangesMade: true, // Flag for checking whether changes have been made
+      changedValues: [] // Array to store names of fields whose values have changed
     };
   }
 
@@ -43,17 +44,92 @@ class Ticket extends Component {
   };
 
   /**
-   * Handler for when an input is changed so that the change is reflected in the state.
+   * Handler for when an input is changed. Also checks to see if "changed" values are actually different from the value of the property.
    */
   handleInputChange = e => {
     const target = e.target;
     const value = target.value;
     const name = target.name;
 
-    this.setState({
-      [name]: value,
-      noChangesMade: false
-    });
+    var self = this; // Makeshift binding for inner function
+    // Inner function to remove a field from the array of changed values if the value is reverted back to the value of the property
+    function removeFromArray(name) {
+      self.setState({
+        changedValues: self.state.changedValues.filter(field => field !== name)
+      });
+    }
+
+    // If field's value hasn't been changed yet
+    if (!this.state.changedValues.includes(name)) {
+      this.setState({
+        [name]: value,
+        changedValues: [...this.state.changedValues, name]
+      });
+    } else {
+      // Apply value change
+      this.setState({ [name]: value });
+      // Switch statement to match form field to the right property
+      switch (name) {
+        case "contactName":
+          if (value === this.props.name) {
+            removeFromArray(name);
+          }
+          break;
+        case "contactEmail":
+          if (value === this.props.email) {
+            removeFromArray(name);
+          }
+          break;
+        case "contactPhone":
+          if (value === this.props.phone) {
+            removeFromArray(name);
+          }
+          break;
+        case "contactExtension":
+          if (value === this.props.extension) {
+            removeFromArray(name);
+          }
+          break;
+        case "ticketSummary":
+          if (value === this.props.summary) {
+            removeFromArray(name);
+          }
+          break;
+        case "ticketStatus":
+          if (value === this.props.status) {
+            removeFromArray(name);
+          }
+          break;
+        case "ticketType":
+          if (value === this.props.type) {
+            removeFromArray(name);
+          }
+          break;
+        case "ticketPriority":
+          if (value === this.props.priority) {
+            removeFromArray(name);
+          }
+          break;
+        case "ticketCategory":
+          if (value === this.props.category) {
+            removeFromArray(name);
+          }
+          break;
+        case "ticketSubcategory":
+          if (value === this.props.subcategory) {
+            removeFromArray(name);
+          }
+          break;
+        case "ticketNewDetailedInfo":
+          if (value === "") {
+            removeFromArray(name);
+          }
+          break;
+        default:
+          console.log("No field found with name " + name);
+          break;
+      }
+    }
   };
 
   /**
@@ -61,7 +137,7 @@ class Ticket extends Component {
    * discard changes if changes have been made.
    */
   handleCancel = () => {
-    if (this.state.noChangesMade) {
+    if (this.state.changedValues.length === 0) {
       this.props.onCancel();
     } else {
       if (window.confirm("Do you wish to discard changes?"))
@@ -112,7 +188,7 @@ class Ticket extends Component {
           {/* Use cancel handler if no changes have been made - no point in submitting unchanged data */}
           <form
             onSubmit={
-              this.state.noChangesMade
+              this.state.changedValues.length === 0
                 ? this.props.onCancel
                 : this.props.onSubmit
             }

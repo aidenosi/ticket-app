@@ -6,7 +6,10 @@ import Modal from "react-bootstrap/Modal";
 ------------ TO DO ------------
   - Add new uneditable field for history of ticket (changes to category, type, status, etc)
     - Don't update details unless new information is added
+  - Sort table view
+  - Search for tickets
   - Find a better/more efficient way to handle displaying tickets (instead of ternary operator)
+  - Fix 'JSON.parse: unexpected character' error when submitting changes
 
 ------------ DONE ------------
   - Add timestamp to details
@@ -14,7 +17,9 @@ import Modal from "react-bootstrap/Modal";
   - Use modal for ticket instead of just displaying over site
   - Show previous details in uneditable text box, merge new changes upon submitting
   - Fix issue where tickets don't show new details after Submitting then re-opening (have to re-open, cancel, then open again)
-  - Find a solution to the issue where the main screen doesn't update after editing ticket (SORT OF FIXED)
+  - Find a solution to the issue where the main screen doesn't update after editing ticket 
+    -Fixed by giving user prompt which allows React time to update state
+  - Ticket now actually checks to see if changes have been made (ie new value is different than value passed in)
 */
 
 class App extends Component {
@@ -314,7 +319,7 @@ class App extends Component {
               <tbody>{ticketList}</tbody>
             </table>
           </div>
-          <Modal size="lg" show={this.state.showModal}>
+          <Modal size="lg" show={this.state.showModal} onHide={null}>
             {ticket}
           </Modal>
         </main>
