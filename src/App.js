@@ -1,25 +1,28 @@
 import React, { Component } from "react";
 import Ticket from "./Ticket.js";
 import Modal from "react-bootstrap/Modal";
+import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
+import BootstrapTable from "react-bootstrap-table-next";
 
 /*
 ------------ TO DO ------------
-  - Sort table view
   - Search for tickets
   - Find a better/more efficient way to handle displaying tickets (instead of ternary operator)
   - Fix 'JSON.parse: unexpected character' error when submitting changes
 
 ------------ DONE ------------
-  - Add timestamp to details
-  - Fix table columns resizing
-  - Use modal for ticket instead of just displaying over site
-  - Show previous details in uneditable text box, merge new changes upon submitting
-  - Fix issue where tickets don't show new details after Submitting then re-opening (have to re-open, cancel, then open again)
-  - Find a solution to the issue where the main screen doesn't update after editing ticket 
-    -Fixed by giving user prompt which allows React time to update state
-  - Ticket now actually checks to see if changes have been made (ie new value is different than value passed in)
-  - Add new uneditable field for history of ticket (changes to category, type, status, etc)
-    - Don't update details unless new information is added
+  + Add timestamp to details
+  + Fix table columns resizing
+  + Use modal for ticket instead of just displaying over site
+  + Show previous details in uneditable text box, merge new changes upon submitting
+  + Fix issue where tickets don't show new details after Submitting then re-opening (have to re-open, cancel, then open again)
+  + Find a solution to the issue where the main screen doesn't update after editing ticket 
+    + Fixed by giving user prompt which allows React time to update state
+  + Ticket now actually checks to see if changes have been made (ie new value is different than value passed in)
+  + Add new uneditable field for history of ticket (changes to category, type, status, etc)
+    + Don't update details unless new information is added
+  + Sort table view
+    + Refactored code to use react-bootstrap-table-next instead of default react table
 */
 
 class App extends Component {
@@ -57,8 +60,7 @@ class App extends Component {
   /**
    * Handler for opening a ticket. Queries a fetch request for a ticket by ID number.
    */
-  handleViewTicket = e => {
-    let id = e.target.id;
+  handleViewTicket = id => {
     fetch("http://localhost:3001/tickets/" + id)
       .then(response => response.json())
       .then(response => this.setState({ requestedTicket: response[0] }));
@@ -310,33 +312,69 @@ class App extends Component {
   };
 
   render() {
-    let ticketList;
-    // If there are tickets...
+    var ticketsArray = [];
     if (this.state.allTickets !== "") {
       let tickets = this.state.allTickets;
-      // ...map each ticket to a row with properties displayed
-      ticketList = tickets.map(ticket => (
-        <tr className="border-bottom" key={ticket.id}>
-          <td>{ticket.id}</td>
-          <td>{ticket.summary}</td>
-          <td>{ticket.status}</td>
-          <td>{ticket.type}</td>
-          <td>{ticket.priority}</td>
-          <td>{ticket.category}</td>
-          <td>{ticket.subcategory}</td>
-          {/* View Button */}
-          <td style={{ textAlign: "right" }}>
-            <button
-              className="btn btn-sm btn-primary"
-              onClick={this.handleViewTicket}
-              id={ticket.id}
-            >
-              View
-            </button>
-          </td>
-        </tr>
-      ));
+      tickets.forEach(function(ticket) {
+        ticketsArray.push({
+          id: ticket.id,
+          summary: ticket.summary,
+          status: ticket.status,
+          type: ticket.type,
+          priority: ticket.priority,
+          category: ticket.category,
+          subcategory: ticket.subcategory
+        });
+      });
     }
+
+    const columns = [
+      {
+        dataField: "id",
+        text: "ID",
+        sort: true
+      },
+      {
+        dataField: "summary",
+        text: "Summary",
+        sort: true
+      },
+      {
+        dataField: "status",
+        text: "Status",
+        sort: true
+      },
+      {
+        dataField: "type",
+        text: "Type",
+        sort: true
+      },
+      {
+        dataField: "priority",
+        text: "Priority",
+        sort: true
+      },
+      {
+        dataField: "category",
+        text: "Category",
+        sort: true
+      },
+      {
+        dataField: "subcategory",
+        text: "Subcategory",
+        sort: true
+      }
+    ];
+
+    const rowEvents = {
+      onClick: (e, row, rowIndex) => {
+        this.handleViewTicket(row.id);
+      },
+      onMouseEnter: (e, row, rowIndex) => {
+        e.currentTarget.style.cursor = "pointer";
+      }
+    };
+
     // TODO - Find a better way of doing this!!
     let ticket = this.state.showModal ? (
       this.state.newTicket ? (
@@ -417,32 +455,21 @@ class App extends Component {
           {/* List view of tickets */}
           <h3>Tickets</h3>
           <div className="container">
-            <table
-              className="ticketsTable"
-              style={{
-                width: "100%",
-                tableLayout: "fixed",
-                textOverflow: "auto"
-              }}
-            >
-              <tbody>
-                <tr className="border-bottom border-dark">
-                  <th>ID</th>
-                  <th>Summary</th>
-                  <th>Status</th>
-                  <th>Type</th>
-                  <th>Priority</th>
-                  <th>Category</th>
-                  <th>Subcategory</th>
-                </tr>
-              </tbody>
-              <tbody>{ticketList}</tbody>
-            </table>
+            <BootstrapTable
+              classes="ticketsTable"
+              keyField="id"
+              data={ticketsArray}
+              columns={columns}
+              rowEvents={rowEvents}
+              bordered={false}
+              hover
+            />
           </div>
           <Modal size="lg" show={this.state.showModal} onHide={null}>
             {ticket}
           </Modal>
         </main>
+        <script src="https://unpkg.com/bootstrap-table@1.15.3/dist/bootstrap-table.min.js" />
       </React.Fragment>
     );
   }

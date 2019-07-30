@@ -212,10 +212,15 @@ class Ticket extends Component {
     return (
       <React.Fragment>
         <main className="container bg-light pb-2 pt-2">
-          <h1>
+          <h1 style={{ display: "inline-block" }}>
             {/* Display ticket ID number if not new ticket */}
             {this.state.ID === "" ? "New Ticket" : "Ticket #" + this.state.ID}
           </h1>
+          <p style={{ display: "inline", float: "right" }}>
+            <button type="button" className="close" onClick={this.handleCancel}>
+              &times;
+            </button>
+          </p>
           <hr />
           <h3 className="mt-3">Contact Information</h3>
           {/* Use cancel handler if no changes have been made - no point in submitting unchanged data */}
