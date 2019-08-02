@@ -269,7 +269,11 @@ class App extends Component {
         );
       }
 
-      changes += "\r\n" + this.state.requestedTicket.history;
+      // Only write previous history if it is not null
+      changes +=
+        this.state.requestedTicket.history === null
+          ? ""
+          : "\r\n" + this.state.requestedTicket.history;
       fetch("http://localhost:3001/tickets/" + id, {
         method: "put",
         mode: "cors",
@@ -408,8 +412,16 @@ class App extends Component {
             id={this.state.requestedTicket.id}
             name={this.state.requestedTicket.name}
             email={this.state.requestedTicket.email}
-            phone={this.state.requestedTicket.phone}
-            extension={this.state.requestedTicket.extension}
+            phone={
+              this.state.requestedTicket.phone === null
+                ? ""
+                : this.state.requestedTicket.phone
+            }
+            extension={
+              this.state.requestedTicket.extension === null
+                ? ""
+                : this.state.requestedTicket.extension
+            }
             summary={this.state.requestedTicket.summary}
             status={this.state.requestedTicket.status}
             type={this.state.requestedTicket.type}
@@ -417,7 +429,11 @@ class App extends Component {
             category={this.state.requestedTicket.category}
             subcategory={this.state.requestedTicket.subcategory}
             details={this.state.requestedTicket.details}
-            history={this.state.requestedTicket.history}
+            history={
+              this.state.requestedTicket.history === null
+                ? ""
+                : this.state.requestedTicket.history
+            }
           />
         </div>
       )

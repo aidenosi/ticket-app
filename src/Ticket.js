@@ -32,9 +32,12 @@ class Ticket extends Component {
         },
         { category: "Other", subcategories: ["Other"] }
       ],
-      noChangesMade: true, // Flag for checking whether changes have been made
       changedValues: [], // Array to store names of fields whose values have changed
-      showHistory: false
+      showHistory: false, // Flag for whether to show ticket history
+      validForm: true, // Flag for whether all the values are valid
+      validEmail: true, // Flags for if specific values are valid according to a regex
+      validPhone: true,
+      validExtension: true
     };
   }
 
@@ -60,6 +63,10 @@ class Ticket extends Component {
         changedValues: self.state.changedValues.filter(field => field !== name)
       });
     }
+    //Reset validity flags for these fields so red outline disappears when user starts correcting error
+    if (name === "contactEmail") this.setState({ validEmail: true });
+    if (name === "contactPhone") this.setState({ validPhone: true });
+    if (name === "contactExtension") this.setState({ validExtension: true });
 
     // If field's value hasn't been changed yet
     if (!this.state.changedValues.includes(name)) {
@@ -147,42 +154,109 @@ class Ticket extends Component {
     }
   };
 
+  /**
+   * Handler for toggling whether ticket history is displayed or not.
+   */
   handleToggleHistory = e => {
     e.preventDefault();
     this.setState({ showHistory: !this.state.showHistory });
   };
 
+  /**
+   * Handler for submit button. Handles form validation.
+   */
+  handleSubmit = e => {
+    e.preventDefault();
+    var valid = true; // Need function-local validation variable since state changes aren't immediate
+    var formValues = [];
+    // Add alll field values to this array
+    formValues.push(
+      this.state.contactName,
+      this.state.contactEmail,
+      this.state.ticketSummary,
+      this.state.ticketStatus,
+      this.state.ticketType,
+      this.state.ticketPriority,
+      this.state.ticketCategory,
+      this.state.ticketSubcategory,
+      this.state.ticketNewDetailedInfo
+    );
+    // Check if any values are blank
+    formValues.forEach(value => {
+      if (value === "") {
+        // If any fields are blank, form is not valid
+        valid = false;
+        this.setState({ validForm: valid });
+      }
+    });
+    // Check that email is valid by testing against regex
+    if (
+      !/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+        this.state.contactEmail
+      )
+    ) {
+      valid = false;
+      this.setState({ validEmail: false });
+    }
+    // Check that phone number is valid by testing against regex or checking if blank
+    if (
+      !/^\(?([0-9]{3})\)?[-]?([0-9]{3})[-]?([0-9]{4})$/.test(
+        this.state.contactPhone
+      ) &&
+      (this.state.contactPhone !== "" || this.state.contactPhone === null)
+    ) {
+      valid = false;
+      this.setState({ validPhone: false });
+    }
+    // Check that extension is valid by testing against regex or checking if blank
+    if (
+      !/^\d*$/.test(this.state.contactExtension) &&
+      (this.state.contactExtension !== "" ||
+        this.state.contactExtension === null ||
+        parseInt(this.state.contactExtension) <= 9999)
+    ) {
+      valid = false;
+      this.setState({ validExtension: false });
+    }
+    if (valid) {
+      this.props.onSubmit(e);
+    }
+  };
+
   render() {
     let list; // Used to populate options for subcategory
-    //Only show previous details if there are any. New tickets will not have the text box.
-    const pastDetailsAndShowHistoryButton =
+    // Only show previous details if there are any. New tickets will not have the text box.
+    const pastDetails =
       this.state.ticketDetailedInfo !== "" ? (
-        <React.Fragment>
-          <div className="form-row mb-1">
-            <div className="form-group col-12">
-              <label htmlFor="ticketDetailedInfo">Past Detailed Info</label>
-              <textarea
-                className="form-control"
-                name="ticketDetailedInfo"
-                rows="5"
-                value={this.state.ticketDetailedInfo}
-                disabled
-              />
-            </div>
+        <div className="form-row mb-1">
+          <div className="form-group col-12">
+            <label htmlFor="ticketDetailedInfo">Past Detailed Info</label>
+            <textarea
+              className="form-control"
+              name="ticketDetailedInfo"
+              rows="5"
+              value={this.state.ticketDetailedInfo}
+              disabled
+            />
           </div>
-          <div className="form-row mb-2">
-            <div className="form-group col-12">
-              <button
-                className="btn btn-secondary"
-                value={this.state.ticketDetailedInfo}
-                onClick={this.handleToggleHistory}
-              >
-                Toggle ticket history
-              </button>
-            </div>
-          </div>
-        </React.Fragment>
+        </div>
       ) : null;
+    // Only show the toggle history button if there is history to show. New tickets and tickets that have not been edited past the first submit will not have the button
+    const showToggleHistory =
+      this.state.ticketHistory === null ||
+      this.state.ticketHistory === "" ? null : (
+        <div className="form-row mb-2">
+          <div className="form-group col-12">
+            <button
+              className="btn btn-secondary"
+              value={this.state.ticketDetailedInfo}
+              onClick={this.handleToggleHistory}
+            >
+              Toggle ticket history
+            </button>
+          </div>
+        </div>
+      );
     const ticketHistoryBox = this.state.showHistory ? (
       <div className="form-row mb-1">
         <div className="form-group col-12">
@@ -223,22 +297,27 @@ class Ticket extends Component {
           </p>
           <hr />
           <h3 className="mt-3">Contact Information</h3>
-          {/* Use cancel handler if no changes have been made - no point in submitting unchanged data */}
+          {/* Use cancel handler if no changes have been made - use submit handler otherwise and for new tickets */}
           <form
             onSubmit={
-              this.state.changedValues.length === 0
+              this.state.changedValues.length === 0 && this.state.ID !== ""
                 ? this.props.onCancel
-                : this.props.onSubmit
+                : this.handleSubmit
             }
             onCancel={this.handleCancel}
             id={this.state.ID}
+            noValidate
           >
             <div className="form-row align-items-center mt-3">
               <div className="form-group col mr-1">
                 <label htmlFor="contactName">Name *</label>
                 <input
                   type="name"
-                  className="form-control"
+                  className={`form-control ${
+                    !this.state.validForm && this.state.contactName === ""
+                      ? " is-invalid"
+                      : ""
+                  }`}
                   name="contactName"
                   placeholder="First Last"
                   value={this.state.contactName}
@@ -250,7 +329,9 @@ class Ticket extends Component {
                 <label htmlFor="contactEmail">Email *</label>
                 <input
                   type="email"
-                  className="form-control"
+                  className={`form-control ${
+                    !this.state.validEmail ? " is-invalid" : ""
+                  }`}
                   name="contactEmail"
                   placeholder="someone@site.com"
                   value={this.state.contactEmail}
@@ -263,7 +344,9 @@ class Ticket extends Component {
                 {/* Check if value is null, set value to empty string, otherwise use state value */}
                 <input
                   type="tel"
-                  className="form-control"
+                  className={`form-control ${
+                    !this.state.validPhone ? " is-invalid" : ""
+                  }`}
                   name="contactPhone"
                   placeholder="123-456-7880"
                   value={
@@ -279,7 +362,9 @@ class Ticket extends Component {
                 {/* Check if value is null, set value to empty string, otherwise use state value */}
                 <input
                   type="text"
-                  className="form-control"
+                  className={`form-control ${
+                    !this.state.validExtension ? " is-invalid" : ""
+                  }`}
                   name="contactExtension"
                   placeholder="1234"
                   value={
@@ -291,14 +376,18 @@ class Ticket extends Component {
                 />
               </div>
             </div>
-            <div className="form-row mb-5" />
+            <div className="form-row mb-3" />
             <h3>Ticket Information</h3>
-            <div className="form-row mt-3 mb-5">
+            <div className="form-row mt-3 mb-3">
               <div className="form-group col-9">
                 <label htmlFor="ticketSummary">Summary *</label>
                 <input
                   type="text"
-                  className="form-control"
+                  className={`form-control ${
+                    !this.state.validForm && this.state.ticketSummary === ""
+                      ? " is-invalid"
+                      : ""
+                  }`}
                   name="ticketSummary"
                   value={this.state.ticketSummary}
                   onChange={this.handleInputChange}
@@ -308,7 +397,11 @@ class Ticket extends Component {
               <div className="form-group col ml-2">
                 <label htmlFor="ticketStatus">Status *</label>
                 <select
-                  className="form-control"
+                  className={`form-control ${
+                    !this.state.validForm && this.state.ticketStatus === ""
+                      ? " is-invalid"
+                      : ""
+                  }`}
                   name="ticketStatus"
                   value={this.state.ticketStatus}
                   onChange={this.handleInputChange}
@@ -324,11 +417,15 @@ class Ticket extends Component {
                 </select>
               </div>
             </div>
-            <div className="form-row mb-5">
+            <div className="form-row mb-3">
               <div className="form-group col mr-1">
                 <label htmlFor="ticketType">Ticket type *</label>
                 <select
-                  className="form-control"
+                  className={`form-control ${
+                    !this.state.validForm && this.state.ticketType === ""
+                      ? " is-invalid"
+                      : ""
+                  }`}
                   name="ticketType"
                   value={this.state.ticketType}
                   onChange={this.handleInputChange}
@@ -345,7 +442,11 @@ class Ticket extends Component {
               <div className="form-group col ml-1 mr-1">
                 <label htmlFor="ticketPriority">Priority *</label>
                 <select
-                  className="form-control"
+                  className={`form-control ${
+                    !this.state.validForm && this.state.ticketPriority === ""
+                      ? " is-invalid"
+                      : ""
+                  }`}
                   name="ticketPriority"
                   value={this.state.ticketPriority}
                   onChange={this.handleInputChange}
@@ -362,7 +463,12 @@ class Ticket extends Component {
               <div className="form-group col ml-1 mr-1">
                 <label htmlFor="ticketCategory">Category *</label>
                 <select
-                  className="form-control"
+                  className={`form-control ${
+                    !this.state.validForm &&
+                    this.state.ticketCategory === "Select category"
+                      ? " is-invalid"
+                      : ""
+                  }`}
                   name="ticketCategory"
                   value={this.state.ticketCategory}
                   onChange={this.handlecategoryChange.bind(this)}
@@ -380,7 +486,11 @@ class Ticket extends Component {
               <div className="form-group col ml-1">
                 <label htmlFor="ticketSubcategory">Subcategory *</label>
                 <select
-                  className="form-control"
+                  className={`form-control ${
+                    !this.state.validForm && this.state.ticketSubcategory === ""
+                      ? " is-invalid"
+                      : ""
+                  }`}
                   name="ticketSubcategory"
                   value={this.state.ticketSubcategory}
                   onChange={this.handleInputChange}
@@ -396,20 +506,25 @@ class Ticket extends Component {
                 </select>
               </div>
             </div>
-            <div className="form-row mb-5">
+            <div className="form-row mb-3">
               <div className="form-group col-12">
                 <label htmlFor="ticketNewDetailedInfo">Detailed Info *</label>
                 <textarea
-                  className="form-control"
+                  className={`form-control ${
+                    !this.state.validForm &&
+                    this.state.ticketNewDetailedInfo === ""
+                      ? " is-invalid"
+                      : ""
+                  }`}
                   name="ticketNewDetailedInfo"
                   rows="5"
-                  value={this.state.ticketNewDetailedInfo}
                   onChange={this.handleInputChange}
                   required
                 />
               </div>
             </div>
-            {pastDetailsAndShowHistoryButton}
+            {pastDetails}
+            {showToggleHistory}
             {ticketHistoryBox}
             <div className="form-row mb-2">
               <div className="col">
