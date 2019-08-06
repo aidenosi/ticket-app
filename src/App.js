@@ -6,8 +6,7 @@ import BootstrapTable from "react-bootstrap-table-next";
 
 /*
 ------------ TO DO ------------
-  - Search for tickets
-  - Find a better/more efficient way to handle displaying tickets (instead of ternary operator)
+  - Search all columns
   - Fix 'JSON.parse: unexpected character' error when submitting changes
 
 ------------ DONE ------------
@@ -23,6 +22,10 @@ import BootstrapTable from "react-bootstrap-table-next";
     + Don't update details unless new information is added
   + Sort table view
     + Refactored code to use react-bootstrap-table-next instead of default react table
+  + Fix sort carets not showing
+    + Enabled bootstrap4 on BootstrapTable
+  + Implement search function 
+    + Can currently search by ID, contact details, summary, category, and subcategory.
 */
 
 class App extends Component {
@@ -315,6 +318,45 @@ class App extends Component {
     this.setState({ showModal: false, newTicket: false, requestedTicket: "" });
   };
 
+  /**
+   * Handler for search function.
+   */
+  handleSearchTickets = e => {
+    e.preventDefault();
+    // Extract search column and term from form
+    const searchColumn = e.target.searchColumn.value.toLowerCase();
+    const searchTerm = e.target.searchTerm.value.toLowerCase();
+    console.log(searchColumn + ":" + searchTerm);
+    // Switch case to determine which fetch to use
+    switch (searchColumn) {
+      // case "all":
+      //   fetch
+      //   break;
+      case "id":
+        fetch("http://localhost:3001/tickets/" + searchTerm)
+          .then(response => response.json())
+          .then(response => {
+            if (response[0] !== undefined) {
+              this.setState({ requestedTicket: response[0] });
+              this.setState({ showModal: true, newTicket: false });
+            } else {
+              window.alert("No ticket with ID #" + searchTerm + " found.");
+            }
+          });
+        break;
+      case "contact info":
+        fetch("http://localhost:3001/search/contact/" + searchTerm)
+          .then(response => response.json())
+          .then(response => this.setState({ allTickets: response }));
+        break;
+      default:
+        fetch("http://localhost:3001/search/" + searchColumn + "/" + searchTerm)
+          .then(response => response.json())
+          .then(response => this.setState({ allTickets: response }));
+        break;
+    }
+  };
+
   render() {
     var ticketsArray = [];
     if (this.state.allTickets !== "") {
@@ -360,13 +402,11 @@ class App extends Component {
       },
       {
         dataField: "category",
-        text: "Category",
-        sort: true
+        text: "Category"
       },
       {
         dataField: "subcategory",
-        text: "Subcategory",
-        sort: true
+        text: "Subcategory"
       }
     ];
 
@@ -452,20 +492,61 @@ class App extends Component {
         <link rel="stylesheet" href="./App.css" />
         {/* Main container */}
         <main className="container bg-light pb-2 pt-2">
-          <div>
+          <div className="form-row">
             {/* Refresh and new ticket buttons */}
-            <button
-              className="btn btn-sm btn-secondary"
-              onClick={this.getAllTickets}
-            >
-              Refresh tickets
-            </button>
-            <button
-              className="btn btn-sm btn-primary"
-              onClick={this.handleNewTicket}
-            >
-              New ticket
-            </button>
+            <div className="form-group col">
+              <button
+                className="btn btn-secondary"
+                onClick={this.getAllTickets}
+              >
+                Refresh tickets
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={this.handleNewTicket}
+              >
+                New ticket
+              </button>
+            </div>
+            <div className="form-group col">
+              <form
+                onSubmit={this.handleSearchTickets}
+                style={{ float: "right" }}
+              >
+                <div className="form-row">
+                  <div className="form-group col">
+                    <select
+                      className="form-control"
+                      name="searchColumn"
+                      defaultValue="All"
+                    >
+                      <option value="All">All</option>
+                      <option value="ID">ID</option>
+                      <option value="Contact Info">Contact Info</option>
+                      <option value="Summary">Summary</option>
+                      <option value="Category">Category</option>
+                      <option value="Subcategory">Subcategory</option>
+                    </select>
+                  </div>
+                  <div className="form-group col">
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="searchTerm"
+                    />
+                  </div>
+                  <div className="form-group col">
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      id="submitSearch"
+                    >
+                      Search
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
           <hr />
           {/* List view of tickets */}
@@ -473,6 +554,7 @@ class App extends Component {
           <div className="container">
             <BootstrapTable
               classes="ticketsTable"
+              bootstrap4={true}
               keyField="id"
               data={ticketsArray}
               columns={columns}
@@ -485,7 +567,6 @@ class App extends Component {
             {ticket}
           </Modal>
         </main>
-        <script src="https://unpkg.com/bootstrap-table@1.15.3/dist/bootstrap-table.min.js" />
       </React.Fragment>
     );
   }
