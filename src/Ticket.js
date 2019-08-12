@@ -325,7 +325,7 @@ class Ticket extends Component {
                   required
                 />
               </div>
-              <div className="form-group col ml-1 mr-1">
+              <div className="form-group col side-margins">
                 <label htmlFor="contactEmail">Email *</label>
                 <input
                   type="email"
@@ -339,7 +339,7 @@ class Ticket extends Component {
                   required
                 />
               </div>
-              <div className="form-group col ml-1 mr-1">
+              <div className="form-group col side-margins">
                 <label htmlFor="contactPhone">Phone number</label>
                 {/* Check if value is null, set value to empty string, otherwise use state value */}
                 <input
@@ -439,7 +439,7 @@ class Ticket extends Component {
                   <option value="Task">Task</option>
                 </select>
               </div>
-              <div className="form-group col ml-1 mr-1">
+              <div className="form-group col side-margins">
                 <label htmlFor="ticketPriority">Priority *</label>
                 <select
                   className={`form-control ${
@@ -460,7 +460,7 @@ class Ticket extends Component {
                   <option value="Low">Low</option>
                 </select>
               </div>
-              <div className="form-group col ml-1 mr-1">
+              <div className="form-group col side-margins">
                 <label htmlFor="ticketCategory">Category *</label>
                 <select
                   className={`form-control ${

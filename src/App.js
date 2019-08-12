@@ -7,6 +7,7 @@ import BootstrapTable from "react-bootstrap-table-next";
 /*
 ------------ TO DO ------------
   - Search all columns
+  - Implement proper server validation and errors
   - Fix 'JSON.parse: unexpected character' error when submitting changes
 
 ------------ DONE ------------
