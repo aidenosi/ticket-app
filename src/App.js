@@ -122,10 +122,7 @@ class App extends Component {
         })
       });
       window.alert("Ticket has been submitted."); // Alert user that ticket submitted
-      this.setState(
-        { newTicket: false, showModal: false },
-        this.getAllTickets()
-      ); // Hide ticket
+      this.setState({ newTicket: false, showModal: false }); // Hide ticket
     }
   };
 
@@ -301,10 +298,11 @@ class App extends Component {
         })
       }).then(response => response.json());
       window.alert("Changes have been submitted."); // Alert user that changes submitted
-      this.setState(
-        { newTicket: false, showModal: false, requestedTicket: "" },
-        this.getAllTickets()
-      );
+      this.setState({
+        newTicket: false,
+        showModal: false,
+        requestedTicket: ""
+      });
       // If user presses cancel, do nothing
     } else {
       e.preventDefault();
@@ -330,9 +328,11 @@ class App extends Component {
     console.log(searchColumn + ":" + searchTerm);
     // Switch case to determine which fetch to use
     switch (searchColumn) {
-      // case "all":
-      //   fetch
-      //   break;
+      case "all":
+        fetch("http://localhost:3001/search/" + searchTerm)
+          .then(response => response.json())
+          .then(response => this.setState({ allTickets: response }));
+        break;
       case "id":
         fetch("http://localhost:3001/tickets/" + searchTerm)
           .then(response => response.json())
@@ -525,8 +525,7 @@ class App extends Component {
                       <option value="ID">ID</option>
                       <option value="Contact Info">Contact Info</option>
                       <option value="Summary">Summary</option>
-                      <option value="Category">Category</option>
-                      <option value="Subcategory">Subcategory</option>
+                      <option value="Details">Details</option>
                     </select>
                   </div>
                   <div className="form-group col">
