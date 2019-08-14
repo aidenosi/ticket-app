@@ -31,6 +31,7 @@ import BootstrapTable from "react-bootstrap-table-next";
 
 class App extends Component {
   state = {
+    DB_URL: "https://ticket-backend-api.herokuapp.com/",
     showModal: false, // Use to determine when to display modal ticket component
     newTicket: false, // Used to determine whether data needs to be filled
     allTickets: "", // Array of all tickets
@@ -49,7 +50,7 @@ class App extends Component {
    * Queries a fetch request for all tickets and updates state list.
    */
   getAllTickets = () => {
-    fetch("http://localhost:3001/tickets")
+    fetch(this.state.DB_URL + "tickets")
       .then(res => res.json())
       .then(res => this.setState({ allTickets: res }));
   };
@@ -65,7 +66,7 @@ class App extends Component {
    * Handler for opening a ticket. Queries a fetch request for a ticket by ID number.
    */
   handleViewTicket = id => {
-    fetch("http://localhost:3001/tickets/" + id)
+    fetch(this.state.DB_URL + "tickets/" + id)
       .then(response => response.json())
       .then(response => this.setState({ requestedTicket: response[0] }));
     this.setState({ showModal: true, newTicket: false }); // Show ticket, fill data
@@ -99,7 +100,7 @@ class App extends Component {
         dformat +
         ":\r\n" +
         e.target.ticketNewDetailedInfo.value;
-      fetch("http://localhost:3001/tickets", {
+      fetch(this.state.DB_URL + "tickets", {
         method: "post",
         mode: "cors",
         headers: {
@@ -275,7 +276,7 @@ class App extends Component {
         this.state.requestedTicket.history === null
           ? ""
           : "\r\n" + this.state.requestedTicket.history;
-      fetch("http://localhost:3001/tickets/" + id, {
+      fetch(this.state.DB_URL + "tickets/" + id, {
         method: "put",
         mode: "cors",
         headers: {
@@ -329,12 +330,12 @@ class App extends Component {
     // Switch case to determine which fetch to use
     switch (searchColumn) {
       case "all":
-        fetch("http://localhost:3001/search/" + searchTerm)
+        fetch(this.state.DB_URL + "search/" + searchTerm)
           .then(response => response.json())
           .then(response => this.setState({ allTickets: response }));
         break;
       case "id":
-        fetch("http://localhost:3001/tickets/" + searchTerm)
+        fetch(this.state.DB_URL + searchTerm)
           .then(response => response.json())
           .then(response => {
             if (response[0] !== undefined) {
@@ -346,12 +347,12 @@ class App extends Component {
           });
         break;
       case "contact info":
-        fetch("http://localhost:3001/search/contact/" + searchTerm)
+        fetch(this.state.DB_URL + "search/contact/" + searchTerm)
           .then(response => response.json())
           .then(response => this.setState({ allTickets: response }));
         break;
       default:
-        fetch("http://localhost:3001/search/" + searchColumn + "/" + searchTerm)
+        fetch(this.state.DB_URL + "search/" + searchColumn + "/" + searchTerm)
           .then(response => response.json())
           .then(response => this.setState({ allTickets: response }));
         break;
