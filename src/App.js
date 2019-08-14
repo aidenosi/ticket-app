@@ -50,7 +50,7 @@ class App extends Component {
    * Queries a fetch request for all tickets and updates state list.
    */
   getAllTickets = () => {
-    fetch(this.state.DB_URL)
+    fetch(this.state.DB_URL + "tickets")
       .then(res => res.json())
       .then(res => this.setState({ allTickets: res }));
   };
@@ -66,7 +66,7 @@ class App extends Component {
    * Handler for opening a ticket. Queries a fetch request for a ticket by ID number.
    */
   handleViewTicket = id => {
-    fetch(this.state.DB_URL + id)
+    fetch(this.state.DB_URL + "tickets/" + id)
       .then(response => response.json())
       .then(response => this.setState({ requestedTicket: response[0] }));
     this.setState({ showModal: true, newTicket: false }); // Show ticket, fill data
@@ -276,7 +276,7 @@ class App extends Component {
         this.state.requestedTicket.history === null
           ? ""
           : "\r\n" + this.state.requestedTicket.history;
-      fetch(this.state.DB_URL + +"/tickets/" + id, {
+      fetch(this.state.DB_URL + "tickets/" + id, {
         method: "put",
         mode: "cors",
         headers: {
