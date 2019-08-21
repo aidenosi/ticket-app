@@ -32,7 +32,7 @@ import BootstrapTable from "react-bootstrap-table-next";
 
 class App extends Component {
   state = {
-    DB_URL: "http://localhost:3001/",
+    DB_URL: "https://ticket-backend-api.herokuapp.com/",
     showModal: false, // Use to determine when to display modal ticket component
     newTicket: false, // Used to determine whether data needs to be filled
     allTickets: "", // Array of all tickets
