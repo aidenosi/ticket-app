@@ -32,7 +32,7 @@ import BootstrapTable from "react-bootstrap-table-next";
 
 class App extends Component {
   state = {
-    DB_URL: "http://localhost:3001/",
+    DB_URL: "https://ticket-backend-api.herokuapp.com/",
     showModal: false, // Use to determine when to display modal ticket component
     newTicket: false, // Used to determine whether data needs to be filled
     allTickets: "", // Array of all tickets
@@ -352,7 +352,7 @@ class App extends Component {
         fetch(this.state.DB_URL + "search/" + searchTerm)
           .then(response => response.json())
           .then(response => {
-            if (response.rows !== undefined || response === []) {
+            if (response.rows !== undefined || response !== []) {
               this.setState({ allTickets: response });
             } else {
               window.alert("No tickets found with search critera.");
@@ -367,7 +367,7 @@ class App extends Component {
         fetch(this.state.DB_URL + "search/contact/" + searchTerm)
           .then(response => response.json())
           .then(response => {
-            if (response.rows !== undefined || response === []) {
+            if (response.rows !== undefined || response !== []) {
               this.setState({ allTickets: response });
             } else {
               window.alert("No tickets found with search critera.");
@@ -379,7 +379,7 @@ class App extends Component {
         fetch(this.state.DB_URL + "search/" + searchColumn + "/" + searchTerm)
           .then(response => response.json())
           .then(response => {
-            if (response.rows !== undefined || response === []) {
+            if (response.rows !== undefined || response !== []) {
               this.setState({ allTickets: response });
             } else {
               window.alert("No tickets found with search critera.");
