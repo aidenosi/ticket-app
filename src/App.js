@@ -352,7 +352,7 @@ class App extends Component {
         fetch(this.state.DB_URL + "search/" + searchTerm)
           .then(response => response.json())
           .then(response => {
-            if (response.rows !== undefined) {
+            if (response.rows !== undefined || response === []) {
               this.setState({ allTickets: response });
             } else {
               window.alert("No tickets found with search critera.");
@@ -367,7 +367,7 @@ class App extends Component {
         fetch(this.state.DB_URL + "search/contact/" + searchTerm)
           .then(response => response.json())
           .then(response => {
-            if (response.rows !== undefined) {
+            if (response.rows !== undefined || response === []) {
               this.setState({ allTickets: response });
             } else {
               window.alert("No tickets found with search critera.");
@@ -379,7 +379,7 @@ class App extends Component {
         fetch(this.state.DB_URL + "search/" + searchColumn + "/" + searchTerm)
           .then(response => response.json())
           .then(response => {
-            if (response.rows !== undefined) {
+            if (response.rows !== undefined || response === []) {
               this.setState({ allTickets: response });
             } else {
               window.alert("No tickets found with search critera.");
