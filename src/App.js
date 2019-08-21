@@ -6,7 +6,6 @@ import BootstrapTable from "react-bootstrap-table-next";
 
 /*
 ------------ TO DO ------------
-  - Search all columns
   - Implement proper server validation and errors
   - Fix 'JSON.parse: unexpected character' error when submitting changes
 
@@ -27,6 +26,8 @@ import BootstrapTable from "react-bootstrap-table-next";
     + Enabled bootstrap4 on BootstrapTable
   + Implement search function 
     + Can currently search by ID, contact details, summary, category, and subcategory.
+  + Search all columns
+  + Adjust all column search to ignore timestamps - put details and history to new table
 */
 
 class App extends Component {
@@ -94,12 +95,11 @@ class App extends Component {
             ("00" + d.getMinutes()).slice(-2),
             ("00" + d.getSeconds()).slice(-2)
           ].join(":");
-      const detailsWithTimestamp =
+      const timestamp =
         "\r\n__________________________________________\r\n" +
         "Submitted on: " +
         dformat +
-        ":\r\n" +
-        e.target.ticketNewDetailedInfo.value;
+        ":\r\n";
       fetch(this.state.DB_URL + "tickets", {
         method: "post",
         mode: "cors",
@@ -118,12 +118,13 @@ class App extends Component {
           priority: e.target.ticketPriority.value,
           category: e.target.ticketCategory.value,
           subcategory: e.target.ticketSubcategory.value,
-          details: detailsWithTimestamp,
+          details: e.target.ticketNewDetailedInfo.value,
+          timestamp: timestamp,
           history: ""
         })
       });
       window.alert("Ticket has been submitted."); // Alert user that ticket submitted
-      this.setState({ newTicket: false, showModal: false }); // Hide ticket
+      this.setState({ newTicket: false, showModal: false }, this.getAllTickets); // Hide ticket
     }
   };
 
@@ -150,13 +151,11 @@ class App extends Component {
             ("00" + d.getMinutes()).slice(-2),
             ("00" + d.getSeconds()).slice(-2)
           ].join(":");
-      const detailsWithTimestamp =
+      const timestamp =
         "\r\n__________________________________________\r\n" +
         "Edited on: " +
         dformat +
-        ":\r\n" +
-        e.target.ticketNewDetailedInfo.value +
-        e.target.ticketDetailedInfo.value;
+        ":\r\n";
 
       var changes = dformat + ":\r\n"; // Timestamp for changes
       // Inner function to add line for any changes made
@@ -261,15 +260,12 @@ class App extends Component {
           e.target.ticketSubcategory.value
         );
       }
-      if (
-        e.target.ticketDetailedInfo.value !== this.state.requestedTicket.details
-      ) {
-        changes += changedValue(
-          "Details",
-          this.state.requestedTicket.details,
-          e.target.ticketDetailedInfo.value
-        );
-      }
+      // Always write that details have been updated (since they must be updated to edit a ticket).
+      changes += changedValue(
+        "Details",
+        this.state.requestedTicket.details,
+        e.target.ticketDetailedInfo.value
+      );
 
       // Only write previous history if it is not null
       changes +=
@@ -294,16 +290,20 @@ class App extends Component {
           priority: e.target.ticketPriority.value,
           category: e.target.ticketCategory.value,
           subcategory: e.target.ticketSubcategory.value,
-          details: detailsWithTimestamp,
+          details: e.target.ticketNewDetailedInfo.value,
+          timestamp: timestamp,
           history: changes
         })
       }).then(response => response.json());
       window.alert("Changes have been submitted."); // Alert user that changes submitted
-      this.setState({
-        newTicket: false,
-        showModal: false,
-        requestedTicket: ""
-      });
+      this.setState(
+        {
+          newTicket: false,
+          showModal: false,
+          requestedTicket: ""
+        },
+        this.getAllTickets
+      );
       // If user presses cancel, do nothing
     } else {
       e.preventDefault();
@@ -326,7 +326,6 @@ class App extends Component {
     // Extract search column and term from form
     const searchColumn = e.target.searchColumn.value.toLowerCase();
     const searchTerm = e.target.searchTerm.value.toLowerCase();
-    console.log(searchColumn + ":" + searchTerm);
     // Switch case to determine which fetch to use
     switch (searchColumn) {
       case "all":
@@ -335,7 +334,7 @@ class App extends Component {
           .then(response => this.setState({ allTickets: response }));
         break;
       case "id":
-        fetch(this.state.DB_URL + searchTerm)
+        fetch(this.state.DB_URL + "tickets/" + searchTerm)
           .then(response => response.json())
           .then(response => {
             if (response[0] !== undefined) {

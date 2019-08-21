@@ -169,7 +169,7 @@ class Ticket extends Component {
     e.preventDefault();
     var valid = true; // Need function-local validation variable since state changes aren't immediate
     var formValues = [];
-    // Add alll field values to this array
+    // Add all field values to this array
     formValues.push(
       this.state.contactName,
       this.state.contactEmail,
