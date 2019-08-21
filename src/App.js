@@ -48,12 +48,26 @@ class App extends Component {
   };
 
   /**
+   * Function to check HTTP status codes of responses.
+   */
+  checkStatus = (response, msg) => {
+    if (response.ok) {
+      return response;
+    } else {
+      let err = new Error(msg);
+      window.alert(err);
+      throw err;
+    }
+  };
+
+  /**
    * Queries a fetch request for all tickets and updates state list.
    */
   getAllTickets = () => {
     fetch(this.state.DB_URL + "tickets")
-      .then(res => res.json())
-      .then(res => this.setState({ allTickets: res }));
+      .then(response => this.checkStatus(response, "Could not load tickets."))
+      .then(response => response.json())
+      .then(response => this.setState({ allTickets: response }));
   };
 
   /**
@@ -68,9 +82,15 @@ class App extends Component {
    */
   handleViewTicket = id => {
     fetch(this.state.DB_URL + "tickets/" + id)
+      .then(response => this.checkStatus(response, "Invalid ticket ID."))
       .then(response => response.json())
-      .then(response => this.setState({ requestedTicket: response[0] }));
-    this.setState({ showModal: true, newTicket: false }); // Show ticket, fill data
+      .then(response =>
+        this.setState({
+          requestedTicket: response[0],
+          showModal: true,
+          newTicket: false
+        })
+      );
   };
 
   /**
@@ -331,29 +351,41 @@ class App extends Component {
       case "all":
         fetch(this.state.DB_URL + "search/" + searchTerm)
           .then(response => response.json())
-          .then(response => this.setState({ allTickets: response }));
-        break;
-      case "id":
-        fetch(this.state.DB_URL + "tickets/" + searchTerm)
-          .then(response => response.json())
           .then(response => {
-            if (response[0] !== undefined) {
-              this.setState({ requestedTicket: response[0] });
-              this.setState({ showModal: true, newTicket: false });
+            if (response.rows !== undefined) {
+              this.setState({ allTickets: response });
             } else {
-              window.alert("No ticket with ID #" + searchTerm + " found.");
+              window.alert("No tickets found with search critera.");
+              this.getAllTickets();
             }
           });
+        break;
+      case "id":
+        this.handleViewTicket(searchTerm);
         break;
       case "contact info":
         fetch(this.state.DB_URL + "search/contact/" + searchTerm)
           .then(response => response.json())
-          .then(response => this.setState({ allTickets: response }));
+          .then(response => {
+            if (response.rows !== undefined) {
+              this.setState({ allTickets: response });
+            } else {
+              window.alert("No tickets found with search critera.");
+              this.getAllTickets();
+            }
+          });
         break;
       default:
         fetch(this.state.DB_URL + "search/" + searchColumn + "/" + searchTerm)
           .then(response => response.json())
-          .then(response => this.setState({ allTickets: response }));
+          .then(response => {
+            if (response.rows !== undefined) {
+              this.setState({ allTickets: response });
+            } else {
+              window.alert("No tickets found with search critera.");
+              this.getAllTickets();
+            }
+          });
         break;
     }
   };
